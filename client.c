@@ -194,6 +194,50 @@ ssl_readcb(struct bufferevent * bev, void * arg)
     bufferevent_write_buffer(bev, in);
 }
 
+void ssl_errorcb(struct bufferevent *bev, short error, void *ctx)
+{
+    client_entry *item;
+
+    if ((error & BEV_EVENT_EOF) || (error & BEV_EVENT_ERROR)) {
+        /* connection has been closed, or error has occured, do any clean up here */
+        /* ... */
+            sem_wait(&bufferevent_semaphore);
+            for (item = TAILQ_FIRST(&Client_list); item != NULL; item = TAILQ_NEXT(item, entries)){
+	        if (item->bev == bev){
+                    char ipstr[16];
+                    inet_ntop(AF_INET, (void *)&item->client.sin_addr, ipstr, sizeof(ipstr));
+                    fprintf(stderr, "Client disconnection from %s:%d\n",
+                            ipstr, ntohs(item->client.sin_port));
+                    TAILQ_REMOVE(&Client_list, item, entries);
+                    free(item);
+                    break;
+	        }
+            }
+            sem_post(&bufferevent_semaphore);
+            bufferevent_free(bev);
+    	    int client_count = 0;
+    	    sem_wait(&bufferevent_semaphore);
+    	    /* NB: Clobbers item */
+   	    TAILQ_FOREACH(item, &Client_list, entries){
+        	client_count++;
+   	    }
+    	    sem_post(&bufferevent_semaphore);
+    	    fprintf(stderr, "There are %d clients\n", client_count);
+
+    } else if (error & BEV_EVENT_ERROR) {
+        /* check errno to see what error occurred */
+        /* ... */
+        fprintf(stderr, "special EVUTIL_SOCKET_ERROR() %d: %s\n",  EVUTIL_SOCKET_ERROR(), evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
+    } else if (error & BEV_EVENT_TIMEOUT) {
+        /* must be a timeout event handle, handle it */
+        /* ... */
+    } else if (error & BEV_EVENT_CONNECTED){
+        fprintf(stderr, "BEV_EVENT_CONNECTED: completed SSL handshake connection\n");
+    }
+
+}
+
+
 /**
    Create a new SSL bufferevent to send its data over an SSL * on a socket.
 
@@ -255,7 +299,7 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     sem_post(&bufferevent_semaphore);
     fprintf(stderr, "There are %d clients\n", client_count);
     bufferevent_enable(bev, EV_READ);
-    bufferevent_setcb(bev, ssl_readcb, NULL, NULL, NULL);
+    bufferevent_setcb(bev, ssl_readcb, NULL, ssl_errorcb, NULL);
 }
 
 SSL_CTX *evssl_init(void)
