@@ -43,7 +43,7 @@ case $build_cpu in
       AC_MSG_NOTICE([Platform: ix86 32 bit])
       # checks for platform dependent flags and compiler optimizations
       # AX_CHECK_COMPILE_FLAG(-ffast-math, SIMD_FLAGS="$SIMD_FLAGS -ffast-math", [])
-      AX_CHECK_COMPILE_FLAG(-fopenmp, SIMD_FLAGS="$SIMD_FLAGS -fopenmp", [])
+      # AX_CHECK_COMPILE_FLAG(-fopenmp, SIMD_FLAGS="$SIMD_FLAGS -fopenmp", [])
       SIMD_FLAGS="$SIMD_FLAGS  -march=native "
       AC_SUBST(SIMD_FLAGS)    
     ;;
@@ -55,7 +55,7 @@ case $build_cpu in
       AC_MSG_NOTICE([${LDFLAGS}])      
       # checks for platform dependent flags and compiler optimizations
       #AX_CHECK_COMPILE_FLAG(-ffast-math, SIMD_FLAGS="$SIMD_FLAGS -ffast-math", [])
-      AX_CHECK_COMPILE_FLAG(-fopenmp, SIMD_FLAGS="$SIMD_FLAGS -fopenmp", [])
+      #AX_CHECK_COMPILE_FLAG(-fopenmp, SIMD_FLAGS="$SIMD_FLAGS -fopenmp", [])
       SIMD_FLAGS="$SIMD_FLAGS  -march=native "
       AC_SUBST(SIMD_FLAGS)    
     ;;
@@ -87,12 +87,6 @@ esac
 dnl # library (in DttSP) used but `RANLIB' is undefined:  the usual way to define `RANLIB' is to add `AC_PROG_RANLIB'
 dnl #AC_PROG_RANLIB
 
-case $host in
-*-linux*)
-   CFLAGS="$CFLAGS -I/usr/include/libusb-1.0/"
-   ;;
-esac
-
 
 #
 # Check for compilation options which affect debugging
@@ -118,29 +112,9 @@ AC_SEARCH_LIBS([round], [m],[have_m=yes])
 have_pthreads=no
 AC_SEARCH_LIBS([pthread_create], [pthread],[have_pthreads=yes])
 
-have_portaudio2=no
-AC_SEARCH_LIBS([Pa_Initialize], [portaudio],[have_portaudio2=yes])
-
-have_fftw3=no
-AC_SEARCH_LIBS([fftwf_malloc], [fftw3f],[have_fftw3=yes])
-
-have_pulse_simple=no
-AC_SEARCH_LIBS([pa_simple_new], [pulse-simple],[have_pulse_simple=yes])
-
-have_pulse=no
-AC_SEARCH_LIBS([pa_strerror], [pulse],[have_pulse=yes])
-
-have_usb=no
-AC_SEARCH_LIBS([usb_init], [usb],[have_usb=yes])
-
-have_jack=no
-AC_SEARCH_LIBS([jack_client_open], [jack],[have_jack=yes])
 
 have_config=no
 AC_SEARCH_LIBS([config_init], [config],[have_config=yes])
-
-have_usb10=no
-AC_SEARCH_LIBS([libusb_init], [usb-1.0],[have_usb10=yes])
 
 have_event20=no
 AC_SEARCH_LIBS([event_init], [event],[have_event20=yes])
@@ -151,15 +125,6 @@ AC_SEARCH_LIBS([evthread_use_pthreads], [event_pthreads],
 
 have_event20_openssl=no
 AC_SEARCH_LIBS([bufferevent_openssl_socket_new], [event_openssl],[have_event20_openssl=yes])
-
-have_samplerate=no
-AC_SEARCH_LIBS([src_new], [samplerate],[have_samplerate=yes])
-
-have_ortp=no
-AC_SEARCH_LIBS([ortp_init], [ortp],[have_ortp=yes])
-
-have_gomp=no
-AC_SEARCH_LIBS([omp_get_active_level], [gomp],[have_gomp=yes])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
@@ -178,80 +143,6 @@ if test "x${have_pthreads}" = xno; then
 fi
 
 
-if test "x${have_portaudio2}" = xyes; then
-    AC_CHECK_HEADERS([portaudio.h], [], [have_portaudio2=no])
-fi
-
-if test "x${have_portaudio2}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The portaudio2 library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
-
-
-if test "x${have_fftw3}" = xyes; then
-    AC_CHECK_HEADERS([fftw3.h], [], [have_fftw3=no])
-fi
-
-if test "x${have_fftw3}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The fftw3 library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
-
-if test "x${have_pulse_simple}" = xyes; then
-    AC_CHECK_HEADERS([pulse/simple.h], [], [have_pulse_simple=no])
-fi
-
-if test "x${have_pulse_simple}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The pulse-simple library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
-
-
-if test "x${have_pulse}" = xyes; then
-    AC_CHECK_HEADERS([pulse/error.h], [], [have_pulse=no])
-fi
-
-if test "x${have_pulse}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The pulse library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
-
-
-if test "x${have_usb}" = xyes; then
-    AC_CHECK_HEADERS([usb.h], [], [have_usb=no])
-fi
-
-if test "x${have_usb}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The libusb-0.1 library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
-
-if test "x${have_jack}" = xyes; then
-    AC_CHECK_HEADERS([jack/jack.h], [], [have_jack=no])
-fi
-
-if test "x${have_jack}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The libjack library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
 
 if test "x${have_config}" = xyes; then
     AC_CHECK_HEADERS([libconfig.h], [], [have_config=no])
@@ -265,17 +156,6 @@ if test "x${have_config}" = xno; then
 
 fi
 
-if test "x${have_usb10}" = xyes; then
-    AC_CHECK_HEADERS([libusb.h], [], [have_usb10=no])
-fi
-
-if test "x${have_usb10}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The libusb-1.0 library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
 
 if test "x${have_event20}" = xyes; then
     AC_CHECK_HEADERS([event2/event.h], [], [have_event20=no])
@@ -317,45 +197,7 @@ if test "x${have_event20_openssl}" = xno; then
 -----------------------------------])
 fi
 
-if test "x${have_samplerate}" = xyes; then
-    AC_CHECK_HEADERS([samplerate.h], [], [have_samplerate=no])
-fi
 
-if test "x${have_samplerate}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The samplerate library and header file is required to build ghpsdr3.
------------------------------------])
-
-fi
-
-if test "x${have_ortp}" = xyes; then
-    AC_CHECK_HEADERS([ortp/ortp.h], [], [have_ortp=no])
-fi
-
-if test "x${have_ortp}" = xyes; then
-    AC_LINK_IFELSE(
-        [AC_LANG_CALL([], [rtp_session_set_pktinfo])],
-        [AC_DEFINE(HAVE_RTCP_ORTP, 1, [have ORTP with RTCP functionality])],
-        [])
-fi
-
-if test "x${have_ortp}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The ortp library and header file is required to build ghpsdr3.
------------------------------------])
-
-fi
-
-
-if test "x${have_gomp}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The gomp library is required to build ghpsdr3.
------------------------------------])
-
-fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -381,88 +223,9 @@ AC_CHECK_FUNCS([floor ftime getcwd gethostbyname gettimeofday inet_ntoa memset p
 # PERSEUS
 #
 
-AC_CHECK_LIB([perseus-sdr], [main],  [do_perseus=yes], [do_perseus=no])
-
-if test "x${do_perseus}" = xyes ; then
-    AC_MSG_NOTICE([
------------------------------------
-  Perseus SDR enabled.
------------------------------------])  
-
-    AC_CONFIG_SUBDIRS([trunk/src/perseus])
-
-    MAKE_PERSEUS="trunk/src/perseus"
-    AC_SUBST([MAKE_PERSEUS])
-fi
-
-
-#
-# RTLSDR (OSMOCOSMO)
-#
-# if rtlsdr lib is present, enable the build even if the user didn't request to do so
-#
-
-AC_CHECK_LIB([rtlsdr], [rtlsdr_open], [do_rtlsdr=yes], [do_rtlsdr=no])
-
-if test "x${do_rtlsdr}" = xyes ; then
-    AC_MSG_NOTICE([
------------------------------------
-   RTL SDR enabled.
------------------------------------])  
-
-    AC_CONFIG_SUBDIRS([trunk/src/rtlsdr])
-
-    MAKE_RTLSDR="trunk/src/rtlsdr"
-    AC_SUBST([MAKE_RTLSDR])
-
-fi
-
-#
-# USRP
-#
-
-have_uhd=no
-AC_LANG_PUSH(C++)
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM([[#include <uhd/usrp/multi_usrp.hpp>]],[[uhd::device_addr_t hint;]])],
-  [AC_MSG_NOTICE([uhd found])
-   have_uhd=yes
-  ],
-  [AC_MSG_WARN([uhd lib not found])]
-)
-AC_LANG_POP([C++])
-
-if test "x${have_uhd}" = xyes; then
-    AC_MSG_NOTICE([
------------------------------------
-  USRP enabled.
------------------------------------])  
-
-    AC_CONFIG_SUBDIRS([trunk/src/usrp])
-
-    MAKE_USRP="trunk/src/usrp"
-    AC_SUBST([MAKE_USRP])
-
-fi
-
-
-#
-# Subpackage QtRadio is unconditionally compiled
-#
-
-if test "x${have_GUI}" = xyes; then
-    AC_MSG_NOTICE([
------------------------------------
-  QtRadio build enabled.
------------------------------------])  
-    AC_CONFIG_SUBDIRS([trunk/src/QtRadio])
-    MAKE_QTRADIO="trunk/src/QtRadio"
-    AC_SUBST([MAKE_QTRADIO])
-fi
 
 
 AC_CONFIG_FILES([Makefile])
-
 
 
 AC_OUTPUT
