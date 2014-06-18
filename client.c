@@ -112,6 +112,15 @@ void errorcb(struct bufferevent *bev, short error, void *ctx)
             }
             sem_post(&bufferevent_semaphore);
             bufferevent_free(bev);
+    	    int client_count = 0;
+    	    sem_wait(&bufferevent_semaphore);
+    	    /* NB: Clobbers item */
+   	    TAILQ_FOREACH(item, &Client_list, entries){
+        	client_count++;
+   	    }
+    	    sem_post(&bufferevent_semaphore);
+    	    fprintf(stderr, "There are %d clients\n", client_count);
+
     } else if (error & BEV_EVENT_ERROR) {
         /* check errno to see what error occurred */
         /* ... */
@@ -244,7 +253,7 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
         client_count++;
     }
     sem_post(&bufferevent_semaphore);
-
+    fprintf(stderr, "There are %d clients\n", client_count);
     bufferevent_enable(bev, EV_READ);
     bufferevent_setcb(bev, ssl_readcb, NULL, NULL, NULL);
 }
