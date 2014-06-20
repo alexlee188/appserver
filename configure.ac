@@ -15,6 +15,7 @@ AC_CONFIG_SRCDIR([README])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([build-aux])
 
+PKG_CHECK_MODULES(XML, libxml-2.0 >= 2.4)
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -198,9 +199,9 @@ if test "x${have_event20_openssl}" = xno; then
 -----------------------------------])
 fi
 
-if test "x${have_xml2}" = xyes; then
-    AC_CHECK_HEADERS([libxml2/libxml/xmlmodule.h], [], [have_xml2=no])
-fi
+#if test "x${have_xml2}" = xyes; then
+#    AC_CHECK_HEADERS([libxml/xmlmodule.h], [], [have_xml2=no])
+#fi
 
 if test "x${have_xml2}" = xno; then
     AC_MSG_ERROR([
