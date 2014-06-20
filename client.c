@@ -58,7 +58,7 @@ static int port=BASE_PORT;
 #define BASE_PORT_SSL 9000
 static int port_ssl=BASE_PORT_SSL;
 
-#define MSG_SIZE 64
+#define MSG_SIZE 32
 
 // Client_list is the HEAD of a queue of connected clients
 TAILQ_HEAD(, _client_entry) Client_list;
@@ -800,16 +800,33 @@ static int tokenize_cmd(char **saveptr, char *list[], int tokens)
     return i;
 }
 
+
 void readcb(struct bufferevent *bev, void *ctx){
-
-    struct evbuffer *in = bufferevent_get_input(bev);
-    const char* xml_string;
+//    char *cmd, *saveptr;
+//    char *tokens[MAX_CMD_TOKENS];
+//    int i;
+    int bytesRead = 0;
+    char message[MSG_SIZE];
+    struct evbuffer *inbuf;
     xmlBufferPtr buf;
+    const char* xml_string;
 
-    printf("Received %zu bytes\n", evbuffer_get_length(in));
-    printf("----- data ----\n");
-    printf("%.*s\n", (int)evbuffer_get_length(in), evbuffer_pullup(in, -1));
-    //bufferevent_write_buffer(bev, in);
+    /* The documentation for evbuffer_get_length is somewhat unclear as
+     * to the actual definition of "length".  It appears to be the
+     * amount of space *available* in the buffer, not occupied by data;
+     * However, the code for reading from an evbuffer will read as many
+     * bytes as it would return, so this behavior is not different from
+     * what was here before. */
+    inbuf = bufferevent_get_input(bev);
+    while (evbuffer_get_length(inbuf) >= MSG_SIZE) {
+        bytesRead = bufferevent_read(bev, message, MSG_SIZE);
+        if (bytesRead != MSG_SIZE) {
+            fprintf(stderr, "Short read from client; shouldn't happen\n");
+            return;
+            }
+        message[bytesRead-1]=0;			// for Linux strings terminating in NULL
+	}
+    fprintf(stdout, "%s\n", message);
     buf = testXmlwriterMemory();
     xml_string = (const char*) buf->content;
     fprintf(stdout, "%s", xml_string);
