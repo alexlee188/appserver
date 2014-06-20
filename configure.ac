@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 
-AC_INIT([ghpsdr3], [iw0hdv], [andrew att montefusco dott com])
+AC_INIT([appserver], [Alex Lee], [alexlee188 att gmail dott com])
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
@@ -126,6 +126,9 @@ AC_SEARCH_LIBS([evthread_use_pthreads], [event_pthreads],
 have_event20_openssl=no
 AC_SEARCH_LIBS([bufferevent_openssl_socket_new], [event_openssl],[have_event20_openssl=yes])
 
+have_xml2=no
+AC_SEARCH_LIBS([xmlCleanupParser], [xml2],[have_xml2=yes])
+
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
@@ -141,8 +144,6 @@ if test "x${have_pthreads}" = xno; then
 -----------------------------------])
 
 fi
-
-
 
 if test "x${have_config}" = xyes; then
     AC_CHECK_HEADERS([libconfig.h], [], [have_config=no])
@@ -197,7 +198,16 @@ if test "x${have_event20_openssl}" = xno; then
 -----------------------------------])
 fi
 
+if test "x${have_xml2}" = xyes; then
+    AC_CHECK_HEADERS([libxml2/libxml/xmlmodule.h], [], [have_xml2=no])
+fi
 
+if test "x${have_xml2}" = xno; then
+    AC_MSG_ERROR([
+-------------------------------------
+    The libxml2 library and header file with xml support required.
+-------------------------------------])
+fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
