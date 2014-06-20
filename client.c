@@ -44,6 +44,9 @@
 /* For fcntl */
 #include <fcntl.h>
 
+#include <libxml/encoding.h>
+#include <libxml/xmlwriter.h>
+
 #include "client.h"
 #include "main.h"
 
@@ -66,6 +69,342 @@ static sem_t bufferevent_semaphore;
 void* client_thread(void* arg);
 
 void client_set_samples(char *client_samples, float* samples,int size);
+
+//============================= xml codes ==========================
+//#define MY_ENCODING "ISO-8859-1"
+#define MY_ENCODING "UTF-8"
+
+xmlBufferPtr testXmlwriterMemory(void);
+xmlChar *ConvertInput(const char *in, const char *encoding);
+
+xmlBufferPtr
+testXmlwriterMemory()
+{
+    int rc;
+    xmlTextWriterPtr writer;
+    xmlBufferPtr buf;
+    xmlChar *tmp;
+
+    /* Create a new XML buffer, to which the XML document will be
+     * written */
+    buf = xmlBufferCreate();
+    if (buf == NULL) {
+        printf("testXmlwriterMemory: Error creating the xml buffer\n");
+        return NULL;
+    }
+
+    /* Create a new XmlWriter for memory, with no compression.
+     * Remark: there is no compression for this kind of xmlTextWriter */
+    writer = xmlNewTextWriterMemory(buf, 0);
+    if (writer == NULL) {
+        printf("testXmlwriterMemory: Error creating the xml writer\n");
+        return NULL;
+    }
+
+    /* Start the document with the xml default for the version,
+     * encoding ISO 8859-1 and the default for the standalone
+     * declaration. */
+    rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartDocument\n");
+        return NULL;
+    }
+
+    /* Start an element named "EXAMPLE". Since thist is the first
+     * element, this will be the root element of the document. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "EXAMPLE");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Write a comment as child of EXAMPLE.
+     * Please observe, that the input to the xmlTextWriter functions
+     * HAS to be in UTF-8, even if the output XML is encoded
+     * in iso-8859-1 */
+    tmp = ConvertInput("This is a comment with special chars: <äöü>",
+                       MY_ENCODING);
+    rc = xmlTextWriterWriteComment(writer, tmp);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteComment\n");
+        return NULL;
+    }
+    if (tmp != NULL) xmlFree(tmp);
+
+    /* Start an element named "ORDER" as child of EXAMPLE. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ORDER");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Add an attribute with name "version" and value "1.0" to ORDER. */
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "version",
+                                     BAD_CAST "1.0");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteAttribute\n");
+        return NULL;
+    }
+
+    /* Add an attribute with name "xml:lang" and value "de" to ORDER. */
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
+                                     BAD_CAST "de");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteAttribute\n");
+        return NULL;
+    }
+
+    /* Write a comment as child of ORDER */
+    tmp = ConvertInput("<äöü>", MY_ENCODING);
+    rc = xmlTextWriterWriteFormatComment(writer,
+		     "This is another comment with special chars: %s",
+                                         tmp);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatComment\n");
+        return NULL;
+    }
+    if (tmp != NULL) xmlFree(tmp);
+
+    /* Start an element named "HEADER" as child of ORDER. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "HEADER");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "X_ORDER_ID" as child of HEADER. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "X_ORDER_ID",
+                                         "%010d", 53535);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "CUSTOMER_ID" as child of HEADER. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
+                                         "%d", 1010);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "NAME_1" as child of HEADER. */
+    tmp = ConvertInput("Müller", MY_ENCODING);
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_1", tmp);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+    if (tmp != NULL) xmlFree(tmp);
+
+    /* Write an element named "NAME_2" as child of HEADER. */
+    tmp = ConvertInput("Jörg", MY_ENCODING);
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_2", tmp);
+
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+    if (tmp != NULL) xmlFree(tmp);
+
+    /* Close the element named HEADER. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return NULL;
+    }
+
+    /* Start an element named "ENTRIES" as child of ORDER. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRIES");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Start an element named "ENTRY" as child of ENTRIES. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRY");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "ARTICLE" as child of ENTRY. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "ARTICLE",
+                                   BAD_CAST "<Test>");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "ENTRY_NO" as child of ENTRY. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ENTRY_NO", "%d",
+                                         10);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return NULL;
+    }
+
+    /* Close the element named ENTRY. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return NULL;
+    }
+
+    /* Start an element named "ENTRY" as child of ENTRIES. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRY");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "ARTICLE" as child of ENTRY. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "ARTICLE",
+                                   BAD_CAST "<Test 2>");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "ENTRY_NO" as child of ENTRY. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ENTRY_NO", "%d",
+                                         20);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return NULL;
+    }
+
+    /* Close the element named ENTRY. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return NULL;
+    }
+
+    /* Close the element named ENTRIES. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return NULL;
+    }
+
+    /* Start an element named "FOOTER" as child of ORDER. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "FOOTER");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "TEXT" as child of FOOTER. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TEXT",
+                                   BAD_CAST "This is a text.");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
+    /* Close the element named FOOTER. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return NULL;
+    }
+
+    /* Here we could close the elements ORDER and EXAMPLE using the
+     * function xmlTextWriterEndElement, but since we do not want to
+     * write any other elements, we simply call xmlTextWriterEndDocument,
+     * which will do all the work. */
+    rc = xmlTextWriterEndDocument(writer);
+    if (rc < 0) {
+        printf("testXmlwriterMemory: Error at xmlTextWriterEndDocument\n");
+        return NULL;
+    }
+
+    xmlFreeTextWriter(writer);
+
+    return buf;
+}
+
+/**
+ * ConvertInput:
+ * @in: string in a given encoding
+ * @encoding: the encoding used
+ *
+ * Converts @in into UTF-8 for processing with libxml2 APIs
+ *
+ * Returns the converted UTF-8 string, or NULL in case of error.
+ */
+xmlChar *
+ConvertInput(const char *in, const char *encoding)
+{
+    xmlChar *out;
+    int ret;
+    int size;
+    int out_size;
+    int temp;
+    xmlCharEncodingHandlerPtr handler;
+
+    if (in == 0)
+        return 0;
+
+    handler = xmlFindCharEncodingHandler(encoding);
+
+    if (!handler) {
+        printf("ConvertInput: no encoding handler found for '%s'\n",
+               encoding ? encoding : "");
+        return 0;
+    }
+
+    size = (int) strlen(in) + 1;
+    out_size = size * 2 - 1;
+    out = (unsigned char *) xmlMalloc((size_t) out_size);
+
+    if (out != 0) {
+        temp = size - 1;
+        ret = handler->input(out, &out_size, (const xmlChar *) in, &temp);
+        if ((ret < 0) || (temp - size + 1)) {
+            if (ret < 0) {
+                printf("ConvertInput: conversion wasn't successful.\n");
+            } else {
+                printf
+                    ("ConvertInput: conversion wasn't successful. converted: %i octets.\n",
+                     temp);
+            }
+
+            xmlFree(out);
+            out = 0;
+        } else {
+            out = (unsigned char *) xmlRealloc(out, out_size + 1);
+            out[out_size] = 0;  /*null terminating out */
+        }
+    } else {
+        printf("ConvertInput: no mem\n");
+    }
+
+    return out;
+}
+
 
 void client_init(int channel) {
     int rc;
@@ -182,62 +521,6 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
     fprintf(stderr, "There are %d clients\n", client_count);
 }
 
-// used for testing ssl socket.  This is just an echo server.
-static void
-ssl_readcb(struct bufferevent * bev, void * arg)
-{
-    struct evbuffer *in = bufferevent_get_input(bev);
-
-    printf("Received %zu bytes\n", evbuffer_get_length(in));
-    printf("----- data ----\n");
-    printf("%.*s\n", (int)evbuffer_get_length(in), evbuffer_pullup(in, -1));
-    bufferevent_write_buffer(bev, in);
-}
-
-void ssl_errorcb(struct bufferevent *bev, short error, void *ctx)
-{
-    client_entry *item;
-
-    if ((error & BEV_EVENT_EOF) || (error & BEV_EVENT_ERROR)) {
-        /* connection has been closed, or error has occured, do any clean up here */
-        /* ... */
-            sem_wait(&bufferevent_semaphore);
-            for (item = TAILQ_FIRST(&Client_list); item != NULL; item = TAILQ_NEXT(item, entries)){
-	        if (item->bev == bev){
-                    char ipstr[16];
-                    inet_ntop(AF_INET, (void *)&item->client.sin_addr, ipstr, sizeof(ipstr));
-                    fprintf(stderr, "Client disconnection from %s:%d\n",
-                            ipstr, ntohs(item->client.sin_port));
-                    TAILQ_REMOVE(&Client_list, item, entries);
-                    free(item);
-                    break;
-	        }
-            }
-            sem_post(&bufferevent_semaphore);
-            bufferevent_free(bev);
-    	    int client_count = 0;
-    	    sem_wait(&bufferevent_semaphore);
-    	    /* NB: Clobbers item */
-   	    TAILQ_FOREACH(item, &Client_list, entries){
-        	client_count++;
-   	    }
-    	    sem_post(&bufferevent_semaphore);
-    	    fprintf(stderr, "There are %d clients\n", client_count);
-
-    } else if (error & BEV_EVENT_ERROR) {
-        /* check errno to see what error occurred */
-        /* ... */
-        fprintf(stderr, "special EVUTIL_SOCKET_ERROR() %d: %s\n",  EVUTIL_SOCKET_ERROR(), evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
-    } else if (error & BEV_EVENT_TIMEOUT) {
-        /* must be a timeout event handle, handle it */
-        /* ... */
-    } else if (error & BEV_EVENT_CONNECTED){
-        fprintf(stderr, "BEV_EVENT_CONNECTED: completed SSL handshake connection\n");
-    }
-
-}
-
-
 /**
    Create a new SSL bufferevent to send its data over an SSL * on a socket.
 
@@ -299,7 +582,7 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     sem_post(&bufferevent_semaphore);
     fprintf(stderr, "There are %d clients\n", client_count);
     bufferevent_enable(bev, EV_READ);
-    bufferevent_setcb(bev, ssl_readcb, NULL, ssl_errorcb, NULL);
+    bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
 }
 
 SSL_CTX *evssl_init(void)
@@ -520,11 +803,19 @@ static int tokenize_cmd(char **saveptr, char *list[], int tokens)
 void readcb(struct bufferevent *bev, void *ctx){
 
     struct evbuffer *in = bufferevent_get_input(bev);
+    const char* xml_string;
+    xmlBufferPtr buf;
 
     printf("Received %zu bytes\n", evbuffer_get_length(in));
     printf("----- data ----\n");
     printf("%.*s\n", (int)evbuffer_get_length(in), evbuffer_pullup(in, -1));
-    bufferevent_write_buffer(bev, in);
+    //bufferevent_write_buffer(bev, in);
+    buf = testXmlwriterMemory();
+    xml_string = (const char*) buf->content;
+    fprintf(stdout, "%s", xml_string);
+    bufferevent_write(bev, xml_string, strlen(xml_string));
+    xmlBufferFree(buf);
+    
 
 }
 
