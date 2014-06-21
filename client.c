@@ -58,7 +58,7 @@ static int port=BASE_PORT;
 #define BASE_PORT_SSL 9000
 static int port_ssl=BASE_PORT_SSL;
 
-#define MSG_SIZE 32
+#define XML_HEADER_SIZE (38+3)
 
 // Client_list is the HEAD of a queue of connected clients
 TAILQ_HEAD(, _client_entry) Client_list;
@@ -509,7 +509,7 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
     evutil_make_socket_closeonexec(fd);
     bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE|BEV_OPT_THREADSAFE);
     bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
-    bufferevent_setwatermark(bev, EV_READ, MSG_SIZE, 0);
+    bufferevent_setwatermark(bev, EV_READ, XML_HEADER_SIZE, 0);
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
@@ -570,7 +570,7 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     memset(item, 0, sizeof(*item));
 
     bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
-    bufferevent_setwatermark(bev, EV_READ, MSG_SIZE, 0);
+    bufferevent_setwatermark(bev, EV_READ, XML_HEADER_SIZE, 0);
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
@@ -795,38 +795,38 @@ static int tokenize_cmd(char **saveptr, char *list[], int tokens)
 
 
 void readcb(struct bufferevent *bev, void *ctx){
-//    char *cmd, *saveptr;
-//    char *tokens[MAX_CMD_TOKENS];
-//    int i;
-    int bytesRead = 0;
-    char message[MSG_SIZE];
     struct evbuffer *inbuf;
     xmlBufferPtr buf;
     const char* xml_string;
+    unsigned char *mem;
+    unsigned char length[4]; // 3 bytes plus string terminator
+    int message_length;
+    char message[512];
 
-    /* The documentation for evbuffer_get_length is somewhat unclear as
-     * to the actual definition of "length".  It appears to be the
-     * amount of space *available* in the buffer, not occupied by data;
-     * However, the code for reading from an evbuffer will read as many
-     * bytes as it would return, so this behavior is not different from
-     * what was here before. */
     inbuf = bufferevent_get_input(bev);
-    while (evbuffer_get_length(inbuf) >= MSG_SIZE) {
-        bytesRead = bufferevent_read(bev, message, MSG_SIZE);
-        if (bytesRead != MSG_SIZE) {
-            fprintf(stderr, "Short read from client; shouldn't happen\n");
-            return;
-            }
-        message[bytesRead-1]=0;			// for Linux strings terminating in NULL
-	}
+    mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
+    if (mem == NULL){ // not enough data to process 3 bytes of length + xml header
+	return;
+    } else {
+	memcpy(length, mem, 3);
+        length[3] = 0;  // string terminating char
+        message_length = atoi((const char*)length);
+        fprintf(stderr, "Message Length = %d\n", message_length);
+        mem = evbuffer_pullup(inbuf, message_length);
+        if (mem == NULL) return;
+        else {
+	    memcpy(message, mem+3, message_length-3);
+            message[message_length-3] = 0;
+            evbuffer_drain(inbuf, message_length);
+        }
+    }
+     
+
     fprintf(stdout, "%s\n", message);
     buf = testXmlwriterMemory();
     xml_string = (const char*) buf->content;
-    fprintf(stdout, "%s", xml_string);
     bufferevent_write(bev, xml_string, strlen(xml_string));
     xmlBufferFree(buf);
-    
-
 }
 
 void printversion(){
