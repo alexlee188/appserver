@@ -793,15 +793,16 @@ static int tokenize_cmd(char **saveptr, char *list[], int tokens)
     return i;
 }
 
+#define MSG_LENGTH 1024
 
 void readcb(struct bufferevent *bev, void *ctx){
     struct evbuffer *inbuf;
     xmlBufferPtr buf;
     const char* xml_string;
     unsigned char *mem;
-    unsigned char length[4]; // 3 bytes plus string terminator
+    char length[4]; // 3 bytes plus string terminator
     int message_length;
-    char message[512];
+    char message[MSG_LENGTH];
 
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
@@ -812,6 +813,11 @@ void readcb(struct bufferevent *bev, void *ctx){
         length[3] = 0;  // string terminating char
         message_length = atoi((const char*)length);
         fprintf(stderr, "Message Length = %d\n", message_length);
+	if (message_length >= MSG_LENGTH){
+		fprintf(stderr, "Message Length too long\n");
+		evbuffer_drain(inbuf, MSG_LENGTH);
+		return;
+	}
         mem = evbuffer_pullup(inbuf, message_length);
         if (mem == NULL) return;
         else {
@@ -825,7 +831,9 @@ void readcb(struct bufferevent *bev, void *ctx){
     fprintf(stdout, "%s\n", message);
     buf = testXmlwriterMemory();
     xml_string = (const char*) buf->content;
-    bufferevent_write(bev, xml_string, strlen(xml_string));
+    sprintf(length, "%3d", (int)strlen(xml_string)+2);
+    bufferevent_write(bev, length, 3);
+    bufferevent_write(bev, xml_string, strlen(xml_string)-1);
     xmlBufferFree(buf);
 }
 
