@@ -416,6 +416,13 @@ void client_init(int channel) {
     sem_init(&bufferevent_semaphore,0,1);
     signal(SIGPIPE, SIG_IGN);
 
+    /*
+     * this initialize the library and check potential ABI mismatches
+     * between the version it was compiled for and the actual shared
+     * library used.
+     */
+    LIBXML_TEST_VERSION
+
     port=BASE_PORT+channel;
     port_ssl = BASE_PORT_SSL + channel;
     rc=pthread_create(&client_thread_id,NULL,client_thread,NULL);
