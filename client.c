@@ -111,20 +111,20 @@ testXmlwriterMemory()
         return NULL;
     }
 
-    /* Start an element named "EXAMPLE". Since thist is the first
+    /* Start an element named "JOBS". Since thist is the first
      * element, this will be the root element of the document. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "EXAMPLE");
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOBS");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
         return NULL;
     }
 
-    /* Write a comment as child of EXAMPLE.
+    /* Write a comment as child of JOBS.
      * Please observe, that the input to the xmlTextWriter functions
      * HAS to be in UTF-8, even if the output XML is encoded
      * in iso-8859-1 */
-    tmp = ConvertInput("This is a comment with special chars: <äöü>",
+    tmp = ConvertInput("Jobs available",
                        MY_ENCODING);
     rc = xmlTextWriterWriteComment(writer, tmp);
     if (rc < 0) {
@@ -134,36 +134,27 @@ testXmlwriterMemory()
     }
     if (tmp != NULL) xmlFree(tmp);
 
-    /* Start an element named "ORDER" as child of EXAMPLE. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "ORDER");
+    /* Start an element named "JOB" as child of JOBS. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
         return NULL;
     }
 
-    /* Add an attribute with name "version" and value "1.0" to ORDER. */
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "version",
-                                     BAD_CAST "1.0");
+    /* Add an attribute with name "status" and value "open" to JOB. */
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "status",
+                                     BAD_CAST "open");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteAttribute\n");
         return NULL;
     }
 
-    /* Add an attribute with name "xml:lang" and value "de" to ORDER. */
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
-                                     BAD_CAST "de");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteAttribute\n");
-        return NULL;
-    }
-
-    /* Write a comment as child of ORDER */
-    tmp = ConvertInput("<äöü>", MY_ENCODING);
+    /* Write a comment as child of JOB */
+    tmp = ConvertInput("open", MY_ENCODING);
     rc = xmlTextWriterWriteFormatComment(writer,
-		     "This is another comment with special chars: %s",
+		     "The status of this job is: %s",
                                          tmp);
     if (rc < 0) {
         printf
@@ -172,7 +163,7 @@ testXmlwriterMemory()
     }
     if (tmp != NULL) xmlFree(tmp);
 
-    /* Start an element named "HEADER" as child of ORDER. */
+    /* Start an element named "HEADER" as child of JOB. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "HEADER");
     if (rc < 0) {
         printf
@@ -182,7 +173,7 @@ testXmlwriterMemory()
 
     /* Write an element named "X_ORDER_ID" as child of HEADER. */
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "X_ORDER_ID",
-                                         "%010d", 53535);
+                                         "%010d", 1);
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
@@ -199,7 +190,7 @@ testXmlwriterMemory()
     }
 
     /* Write an element named "NAME_1" as child of HEADER. */
-    tmp = ConvertInput("Müller", MY_ENCODING);
+    tmp = ConvertInput("Mr Chan", MY_ENCODING);
     rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_1", tmp);
     if (rc < 0) {
         printf
@@ -209,7 +200,7 @@ testXmlwriterMemory()
     if (tmp != NULL) xmlFree(tmp);
 
     /* Write an element named "NAME_2" as child of HEADER. */
-    tmp = ConvertInput("Jörg", MY_ENCODING);
+    tmp = ConvertInput("Mrs Chan", MY_ENCODING);
     rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_2", tmp);
 
     if (rc < 0) {
@@ -226,88 +217,70 @@ testXmlwriterMemory()
         return NULL;
     }
 
-    /* Start an element named "ENTRIES" as child of ORDER. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRIES");
+    /* Start an element named "NEEDS" as child of JOB. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
         return NULL;
     }
 
-    /* Start an element named "ENTRY" as child of ENTRIES. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRY");
+    /* Start an element named "NEED" as child of NEEDS. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
         return NULL;
     }
 
-    /* Write an element named "ARTICLE" as child of ENTRY. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "ARTICLE",
-                                   BAD_CAST "<Test>");
+    /* Write an element named "TYPE" as child of NEED. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TYPE",
+                                   BAD_CAST "Geriatric");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
         return NULL;
     }
 
-    /* Write an element named "ENTRY_NO" as child of ENTRY. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ENTRY_NO", "%d",
-                                         10);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return NULL;
-    }
-
-    /* Close the element named ENTRY. */
+    /* Close the element named NEED. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
         printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
         return NULL;
     }
 
-    /* Start an element named "ENTRY" as child of ENTRIES. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "ENTRY");
+    /* Start an element named "NEED" as child of NEEDS. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
         return NULL;
     }
 
-    /* Write an element named "ARTICLE" as child of ENTRY. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "ARTICLE",
-                                   BAD_CAST "<Test 2>");
+    /* Write an element named "TYPE" as child of NEED. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TYPE",
+                                   BAD_CAST "Paediatric");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
         return NULL;
     }
 
-    /* Write an element named "ENTRY_NO" as child of ENTRY. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ENTRY_NO", "%d",
-                                         20);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return NULL;
-    }
-
-    /* Close the element named ENTRY. */
+    /* Close the element named NEED. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
         printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
         return NULL;
     }
 
-    /* Close the element named ENTRIES. */
+    /* Close the element named NEEDS. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
         printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
         return NULL;
     }
 
-    /* Start an element named "FOOTER" as child of ORDER. */
+    /* Start an element named "FOOTER" as child of JOB. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "FOOTER");
     if (rc < 0) {
         printf
@@ -815,7 +788,7 @@ void readcb(struct bufferevent *bev, void *ctx){
         fprintf(stderr, "Message Length = %d\n", message_length);
 	if (message_length >= MSG_LENGTH){
 		fprintf(stderr, "Message Length too long\n");
-		evbuffer_drain(inbuf, MSG_LENGTH);
+		evbuffer_drain(inbuf, MSG_LENGTH*2); // just remove as much as possible
 		return;
 	}
         mem = evbuffer_pullup(inbuf, message_length);
