@@ -508,7 +508,7 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
     evutil_make_socket_nonblocking(fd);
     evutil_make_socket_closeonexec(fd);
     bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE|BEV_OPT_THREADSAFE);
-    bufferevent_setcb(bev, readcb, writecb, errorcb, NULL);
+    bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
     bufferevent_setwatermark(bev, EV_READ, MSG_SIZE, 0);
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
@@ -569,7 +569,7 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     item = malloc(sizeof(*item));
     memset(item, 0, sizeof(*item));
 
-    bufferevent_setcb(bev, readcb, writecb, errorcb, NULL);
+    bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
     bufferevent_setwatermark(bev, EV_READ, MSG_SIZE, 0);
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
@@ -585,7 +585,9 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
         client_count++;
     }
     sem_post(&bufferevent_semaphore);
-    fprintf(stderr, "There are %d clients\n", client_count);
+    if (client_count <= 1)
+    	    fprintf(stderr, "There is %d client\n", client_count);
+    else fprintf(stderr, "There are %d clients\n", client_count);
     bufferevent_enable(bev, EV_READ);
     bufferevent_setcb(bev, readcb, NULL, errorcb, NULL);
 }
@@ -765,24 +767,10 @@ void* client_thread(void* arg) {
     return NULL;
 }
 
-void writecb(struct bufferevent *bev, void *ctx){
-    client_entry *client_item;
-
-    while (0){
-        sem_wait(&bufferevent_semaphore);
-        TAILQ_FOREACH(client_item, &Client_list, entries){
-            sem_post(&bufferevent_semaphore);
-            sem_wait(&bufferevent_semaphore);
-        }
-        sem_post(&bufferevent_semaphore);
-    }
-}
-
-
 /* The maximum number of arguments a command can have and pass through
  * the tokenize_cmd tokenizer.  If you need more than this, bump it
  * up. */
-#define MAX_CMD_TOKENS 11
+#define MAX_CMD_TOKENS 10
 
 /*
  * Tokenize the remaining words of a command, saving them to list and
