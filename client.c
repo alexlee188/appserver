@@ -465,7 +465,9 @@ void errorcb(struct bufferevent *bev, short error, void *ctx)
         	client_count++;
    	    }
     	    sem_post(&bufferevent_semaphore);
-    	    fprintf(stderr, "There are %d clients\n", client_count);
+	    if (client_count <= 1)
+    	    	fprintf(stderr, "There is %d client\n", client_count);
+	    else fprintf(stderr, "There are %d clients\n", client_count);
 
     } else if (error & BEV_EVENT_ERROR) {
         /* check errno to see what error occurred */
@@ -511,9 +513,6 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
-    item->rtp = connection_unknown;
-    item->fps = 0;
-    item->frame_counter = 0;
     sem_wait(&bufferevent_semaphore);
     TAILQ_INSERT_TAIL(&Client_list, item, entries);
     sem_post(&bufferevent_semaphore);
@@ -525,7 +524,9 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
         client_count++;
     }
     sem_post(&bufferevent_semaphore);
-    fprintf(stderr, "There are %d clients\n", client_count);
+    if (client_count <= 1)
+    	fprintf(stderr, "There is %d client\n", client_count);
+    else fprintf(stderr, "There are %d clients\n", client_count);
 }
 
 /**
@@ -573,9 +574,6 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
-    item->rtp = connection_unknown;
-    item->fps = 0;
-    item->frame_counter = 0;
     sem_wait(&bufferevent_semaphore);
     TAILQ_INSERT_TAIL(&Client_list, item, entries);
     sem_post(&bufferevent_semaphore);

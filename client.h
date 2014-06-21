@@ -22,7 +22,6 @@
 #define __CLIENT_H__
 
 #include <sys/queue.h>
-#include <ortp/ortp.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -32,33 +31,25 @@
 #include <event2/listener.h>
 #include <event2/bufferevent_ssl.h>
 
-
-
-enum CLIENT_CONNECTION {
-	connection_unknown,
-	connection_tcp = 0,
-	connection_rtp
-} client_connection;
+struct _address {
+	char number[20];
+	char street1[40];
+	char street2[40];
+	char postcode[8];
+	};
 
 typedef struct _client_entry {
-        enum CLIENT_CONNECTION rtp;
 	struct sockaddr_in client;
 	struct bufferevent * bev;
-	int fps;
-	int frame_counter;
-	int samples;
-	RtpSession *session;
+	char name[80];
+	char phone[20];
+	struct _address address;
 	TAILQ_ENTRY(_client_entry) entries;
 } client_entry;
 
-typedef struct _memory_entry {
-	char* memory;
-	TAILQ_ENTRY(_memory_entry) entries;
-} memory_entry;
 
 void client_init(int receiver);
 
-void answer_question(char *message, char *clienttype, struct bufferevent *bev);
 char servername[21];
 static SSL_CTX *evssl_init(void);
 
