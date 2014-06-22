@@ -46,6 +46,7 @@
 
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#include <libxml/xmlreader.h>
 
 #include "client.h"
 #include "main.h"
@@ -242,6 +243,33 @@ testXmlwriterMemory()
         return NULL;
     }
 
+    /* Write an element named "DATE" as child of NEED. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "DATE",
+                                   BAD_CAST "1 Jan 2015");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "TIME" as child of NEED. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TIME",
+                                   BAD_CAST "1800");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
+    /* Write an element named "DURATION" as child of NEED. */
+    rc = xmlTextWriterWriteElement(writer, BAD_CAST "DURATION",
+                                   BAD_CAST "3 hrs");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
+        return NULL;
+    }
+
     /* Close the element named NEED. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
@@ -290,7 +318,7 @@ testXmlwriterMemory()
 
     /* Write an element named "TEXT" as child of FOOTER. */
     rc = xmlTextWriterWriteElement(writer, BAD_CAST "TEXT",
-                                   BAD_CAST "This is a text.");
+                                   BAD_CAST "This job is urgent.");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
@@ -740,32 +768,6 @@ void* client_thread(void* arg) {
     return NULL;
 }
 
-/* The maximum number of arguments a command can have and pass through
- * the tokenize_cmd tokenizer.  If you need more than this, bump it
- * up. */
-#define MAX_CMD_TOKENS 10
-
-/*
- * Tokenize the remaining words of a command, saving them to list and
- * returning the number of tokens found.  Do not attempt to find more
- * than 'tokens' tokens.
- */ 
-static int tokenize_cmd(char **saveptr, char *list[], int tokens)
-{
-    int i = 0;
-    char *token;
-
-    if (tokens > MAX_CMD_TOKENS) {
-        fprintf(stderr, "tokenize_cmd called with tokens > MAX_CMD_TOKENS\n");
-        tokens = MAX_CMD_TOKENS;
-    }
-    for (i = 0; i < tokens && (token = strtok_r(NULL, " ", saveptr)); i++) {
-        list[i] = token;
-    }
-
-    return i;
-}
-
 #define MSG_LENGTH 1024
 
 void readcb(struct bufferevent *bev, void *ctx){
@@ -776,6 +778,8 @@ void readcb(struct bufferevent *bev, void *ctx){
     char length[4]; // 3 bytes plus string terminator
     int message_length;
     char message[MSG_LENGTH];
+    xmlTextReaderPtr reader;
+    int ret;
 
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
@@ -799,15 +803,35 @@ void readcb(struct bufferevent *bev, void *ctx){
             evbuffer_drain(inbuf, message_length);
         }
     }
-     
-
     fprintf(stdout, "%s\n", message);
-    buf = testXmlwriterMemory();
-    xml_string = (const char*) buf->content;
-    sprintf(length, "%3d", (int)strlen(xml_string)+2);
-    bufferevent_write(bev, length, 3);
-    bufferevent_write(bev, xml_string, strlen(xml_string)-1);
-    xmlBufferFree(buf);
+
+    reader = xmlReaderForMemory(message, message_length-3, "noname.xml", NULL, 0);
+    if (reader != NULL){
+	ret = xmlTextReaderRead(reader);
+	while (ret == 1){
+	    const xmlChar *name, *value;
+	    int type;
+            name = xmlTextReaderConstName(reader);
+	    type = xmlTextReaderNodeType(reader);
+	    if ((type == 1) && (name != NULL) && (strncmp((char*)name, "QUERY", 5) == 0)){
+		ret = xmlTextReaderRead(reader);  
+		value = xmlTextReaderConstValue(reader);
+		type = xmlTextReaderNodeType(reader); // next node should be a #TEXT
+		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
+    			buf = testXmlwriterMemory();
+    			xml_string = (const char*) buf->content;
+    			sprintf(length, "%3d", (int)strlen(xml_string)+2);
+    			bufferevent_write(bev, length, 3);
+    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
+    			xmlBufferFree(buf);
+		};
+            };
+            ret = xmlTextReaderRead(reader);
+        } // ret == 1
+        xmlFreeTextReader(reader);
+	if (ret != 0) return; // failed to parse xml
+
+    } // reader != NULL
 }
 
 void printversion(){
