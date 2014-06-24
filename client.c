@@ -33,7 +33,6 @@
 #include <signal.h>
 #include <string.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <math.h>
 #include <time.h>
 #include <sys/timeb.h>
@@ -65,8 +64,6 @@ static int port_ssl=BASE_PORT_SSL;
 TAILQ_HEAD(, _client_entry) Client_list;
 
 
-static sem_t bufferevent_semaphore;
-
 void* client_thread(void* arg);
 
 void client_set_samples(char *client_samples, float* samples,int size);
@@ -78,11 +75,82 @@ void client_set_samples(char *client_samples, float* samples,int size);
 xmlBufferPtr testXmlwriterMemory(void);
 xmlChar *ConvertInput(const char *in, const char *encoding);
 
+xmlTextWriterPtr writer;
+
+static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColName){
+    int i;
+    int rc;
+    xmlChar *tmp;
+
+    for(i=0; i<argc; i++){
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+
+    /* Start an element named "JOB" as child of JOBS. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return 0;
+    }
+
+    /* Add an attribute with name "status" and value to JOB. */
+    tmp = ConvertInput(argv[0]?argv[0]:"NULL", MY_ENCODING);
+    rc = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "STATUS",
+                                     "%s", tmp);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatAttribute\n");
+        return 0;
+    }
+
+    if (tmp != NULL) xmlFree(tmp);
+
+    /* Write an element named "JOB_ID" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_ID",
+                                         "%s", argv[1]?argv[1]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    /* Write an element named "CUSTOMER_ID" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
+                                         "%s", argv[2]?argv[2]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    /* Start an element named "NEEDS" as child of JOB. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return 0;
+    }
+
+    /* Start an element named "NEED" as child of NEEDS. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return 0;
+    }
+
+
+    return 0;
+}
+
+
 xmlBufferPtr
 testXmlwriterMemory()
 {
     int rc;
-    xmlTextWriterPtr writer;
+
     xmlBufferPtr buf;
     xmlChar *tmp;
 
@@ -135,204 +203,9 @@ testXmlwriterMemory()
     }
     if (tmp != NULL) xmlFree(tmp);
 
-    /* Start an element named "JOB" as child of JOBS. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
 
-    /* Add an attribute with name "status" and value "open" to JOB. */
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "status",
-                                     BAD_CAST "open");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteAttribute\n");
-        return NULL;
-    }
 
-    /* Write a comment as child of JOB */
-    tmp = ConvertInput("open", MY_ENCODING);
-    rc = xmlTextWriterWriteFormatComment(writer,
-		     "The status of this job is: %s",
-                                         tmp);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatComment\n");
-        return NULL;
-    }
-    if (tmp != NULL) xmlFree(tmp);
-
-    /* Start an element named "HEADER" as child of JOB. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "HEADER");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "X_ORDER_ID" as child of HEADER. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "X_ORDER_ID",
-                                         "%010d", 1);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "CUSTOMER_ID" as child of HEADER. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
-                                         "%d", 1010);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "NAME_1" as child of HEADER. */
-    tmp = ConvertInput("Mr Chan", MY_ENCODING);
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_1", tmp);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-    if (tmp != NULL) xmlFree(tmp);
-
-    /* Write an element named "NAME_2" as child of HEADER. */
-    tmp = ConvertInput("Mrs Chan", MY_ENCODING);
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "NAME_2", tmp);
-
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-    if (tmp != NULL) xmlFree(tmp);
-
-    /* Close the element named HEADER. */
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return NULL;
-    }
-
-    /* Start an element named "NEEDS" as child of JOB. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Start an element named "NEED" as child of NEEDS. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "TYPE" as child of NEED. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TYPE",
-                                   BAD_CAST "Geriatric");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "DATE" as child of NEED. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "DATE",
-                                   BAD_CAST "1 Jan 2015");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "TIME" as child of NEED. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TIME",
-                                   BAD_CAST "1800");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "DURATION" as child of NEED. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "DURATION",
-                                   BAD_CAST "3 hrs");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Close the element named NEED. */
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return NULL;
-    }
-
-    /* Start an element named "NEED" as child of NEEDS. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "TYPE" as child of NEED. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TYPE",
-                                   BAD_CAST "Paediatric");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Close the element named NEED. */
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return NULL;
-    }
-
-    /* Close the element named NEEDS. */
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return NULL;
-    }
-
-    /* Start an element named "FOOTER" as child of JOB. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "FOOTER");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Write an element named "TEXT" as child of FOOTER. */
-    rc = xmlTextWriterWriteElement(writer, BAD_CAST "TEXT",
-                                   BAD_CAST "This job is urgent.");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteElement\n");
-        return NULL;
-    }
-
-    /* Close the element named FOOTER. */
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return NULL;
-    }
-
-    /* Here we could close the elements ORDER and EXAMPLE using the
+    /* Here we could close the elements using the
      * function xmlTextWriterEndElement, but since we do not want to
      * write any other elements, we simply call xmlTextWriterEndDocument,
      * which will do all the work. */
@@ -414,7 +287,6 @@ void client_init(int channel) {
 
     TAILQ_INIT(&Client_list);
 
-    sem_init(&bufferevent_semaphore,0,1);
     signal(SIGPIPE, SIG_IGN);
 
     /*
@@ -445,7 +317,6 @@ void errorcb(struct bufferevent *bev, short error, void *ctx)
     if ((error & BEV_EVENT_EOF) || (error & BEV_EVENT_ERROR)) {
         /* connection has been closed, or error has occured, do any clean up here */
         /* ... */
-            sem_wait(&bufferevent_semaphore);
             for (item = TAILQ_FIRST(&Client_list); item != NULL; item = TAILQ_NEXT(item, entries)){
 	        if (item->bev == bev){
                     char ipstr[16];
@@ -457,15 +328,12 @@ void errorcb(struct bufferevent *bev, short error, void *ctx)
                     break;
 	        }
             }
-            sem_post(&bufferevent_semaphore);
             bufferevent_free(bev);
     	    int client_count = 0;
-    	    sem_wait(&bufferevent_semaphore);
     	    /* NB: Clobbers item */
    	    TAILQ_FOREACH(item, &Client_list, entries){
         	client_count++;
    	    }
-    	    sem_post(&bufferevent_semaphore);
 	    if (client_count <= 1)
     	    	fprintf(stderr, "There is %d client\n", client_count);
 	    else fprintf(stderr, "There are %d clients\n", client_count);
@@ -514,17 +382,13 @@ void do_accept(evutil_socket_t listener, short event, void *arg){
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
-    sem_wait(&bufferevent_semaphore);
     TAILQ_INSERT_TAIL(&Client_list, item, entries);
-    sem_post(&bufferevent_semaphore);
 
     int client_count = 0;
-    sem_wait(&bufferevent_semaphore);
     /* NB: Clobbers item */
     TAILQ_FOREACH(item, &Client_list, entries){
         client_count++;
     }
-    sem_post(&bufferevent_semaphore);
     if (client_count <= 1)
     	fprintf(stderr, "There is %d client\n", client_count);
     else fprintf(stderr, "There are %d clients\n", client_count);
@@ -575,17 +439,13 @@ do_accept_ssl(struct evconnlistener *serv, int sock, struct sockaddr *sa,
     bufferevent_setwatermark(bev, EV_WRITE, 4096, 0);
     bufferevent_enable(bev, EV_READ|EV_WRITE);
     item->bev = bev;
-    sem_wait(&bufferevent_semaphore);
     TAILQ_INSERT_TAIL(&Client_list, item, entries);
-    sem_post(&bufferevent_semaphore);
 
     int client_count = 0;
-    sem_wait(&bufferevent_semaphore);
     /* NB: Clobbers item */
     TAILQ_FOREACH(item, &Client_list, entries){
         client_count++;
     }
-    sem_post(&bufferevent_semaphore);
     if (client_count <= 1)
     	    fprintf(stderr, "There is %d client\n", client_count);
     else fprintf(stderr, "There are %d clients\n", client_count);
@@ -820,7 +680,7 @@ void readcb(struct bufferevent *bev, void *ctx){
 		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
     			buf = testXmlwriterMemory();
     			xml_string = (const char*) buf->content;
-    			sprintf(length, "%3d", (int)strlen(xml_string)+2);
+    			sprintf(length, "%03d", (int)strlen(xml_string)+2);
     			bufferevent_write(bev, length, 3);
     			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
     			xmlBufferFree(buf);
