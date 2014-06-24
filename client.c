@@ -164,6 +164,24 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
         return 0;
     }
 
+    /* Write an element named "JOB_START_TIME" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_START_TIME",
+                                         "%s", argv[7]?argv[7]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    /* Write an element named "JOB_DURATION" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DURATION",
+                                         "%s HRS", argv[8]?argv[8]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
     // end JOB
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
@@ -243,7 +261,7 @@ testXmlwriterMemory()
     if (tmp != NULL) xmlFree(tmp);
 
     // here does SQL call to retrieve rows of JOB
-    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3 from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
