@@ -40,12 +40,15 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
 /* For fcntl */
 #include <fcntl.h>
 
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
+
+#include <sqlite3.h>
 
 #include "client.h"
 #include "main.h"
@@ -125,6 +128,14 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
         return 0;
     }
 
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
+                                         "%s", argv[3]?argv[3]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
     /* Start an element named "NEEDS" as child of JOB. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
     if (rc < 0) {
@@ -133,15 +144,33 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
         return 0;
     }
 
-    /* Start an element named "NEED" as child of NEEDS. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEED");
+    for (i=4; i<7; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
+    /* Write an element named "NEED" as child of NEEDS. */
+      if (argv[i] != NULL){
+    	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NEED", "%s", argv[i]);
+    	if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+        }
+       }
+    }
+
+    // end NEEDS
+    rc = xmlTextWriterEndElement(writer);
     if (rc < 0) {
         printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
         return 0;
     }
 
-
+    // end JOB
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return 0;
+    }
     return 0;
 }
 
@@ -153,6 +182,16 @@ testXmlwriterMemory()
 
     xmlBufferPtr buf;
     xmlChar *tmp;
+
+    sqlite3 *db;
+    char *zErrMsg = 0;
+
+    rc = sqlite3_open("appserver.db", &db);
+    if( rc ){
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      sqlite3_close(db);
+      return(NULL);
+    }
 
     /* Create a new XML buffer, to which the XML document will be
      * written */
@@ -203,7 +242,13 @@ testXmlwriterMemory()
     }
     if (tmp != NULL) xmlFree(tmp);
 
-
+    // here does SQL call to retrieve rows of JOB
+    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3 from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
+    if( rc!=SQLITE_OK ){
+      fprintf(stderr, "SQL error: %s\n", zErrMsg);
+      sqlite3_free(zErrMsg);
+    }
+    sqlite3_close(db);
 
     /* Here we could close the elements using the
      * function xmlTextWriterEndElement, but since we do not want to

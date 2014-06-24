@@ -16,6 +16,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([build-aux])
 
 PKG_CHECK_MODULES(XML, libxml-2.0 >= 2.4)
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
@@ -130,6 +131,9 @@ AC_SEARCH_LIBS([bufferevent_openssl_socket_new], [event_openssl],[have_event20_o
 have_xml2=no
 AC_SEARCH_LIBS([xmlCleanupParser], [xml2],[have_xml2=yes])
 
+have_sqlite3=no
+AC_SEARCH_LIBS([sqlite3_open],[sqlite3],[have_sqlite3=yes])
+
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h netdb.h netinet/in.h stddef.h stdlib.h string.h sys/ioctl.h sys/param.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
@@ -208,6 +212,17 @@ if test "x${have_xml2}" = xno; then
 -------------------------------------
     The libxml2 library and header file with xml support required.
 -------------------------------------])
+fi
+
+if test "x${have_sqlite3}" = xyes; then
+    AC_CHECK_HEADERS([sqlite3.h],[],[have_sqlite3=no])
+fi
+
+if test "x${have_sqlite3}" = xno; then
+    AC_MSG_ERROR([
+--------------------------------------
+    The libsqlite3 library and header files with sqlite3 support required.
+--------------------------------------])
 fi
 
 # Checks for typedefs, structures, and compiler characteristics.
