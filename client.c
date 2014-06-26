@@ -85,10 +85,12 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
     int rc;
     xmlChar *tmp;
 
+/*  // dump all results of sql query
     for(i=0; i<argc; i++){
       printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
+*/
 
     /* Start an element named "JOB" as child of JOBS. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
@@ -128,8 +130,17 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
         return 0;
     }
 
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
+    /* Write an element named "ADDR_POSTCODE" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_POSTCODE",
                                          "%s", argv[3]?argv[3]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
+                                         "%s", argv[4]?argv[4]:"NULL");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
@@ -144,7 +155,7 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
         return 0;
     }
 
-    for (i=4; i<7; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
+    for (i=5; i<8; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
     /* Write an element named "NEED" as child of NEEDS. */
       if (argv[i] != NULL){
     	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NEED", "%s", argv[i]);
@@ -166,7 +177,7 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
 
     /* Write an element named "JOB_START_TIME" as child of JOB. */
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_START_TIME",
-                                         "%s", argv[7]?argv[7]:"NULL");
+                                         "%s", argv[8]?argv[8]:"NULL");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
@@ -175,7 +186,7 @@ static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColNa
 
     /* Write an element named "JOB_DURATION" as child of JOB. */
     rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DURATION",
-                                         "%s HRS", argv[8]?argv[8]:"NULL");
+                                         "%s HR", argv[9]?argv[9]:"NULL");
     if (rc < 0) {
         printf
             ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
@@ -261,7 +272,7 @@ testXmlwriterMemory()
     if (tmp != NULL) xmlFree(tmp);
 
     // here does SQL call to retrieve rows of JOB
-    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
