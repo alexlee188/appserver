@@ -19,7 +19,7 @@ import javax.net.ssl.X509TrustManager;
 
 
 public class TCPClient {
-    private String serverMessage;
+    private String serverMessage = null;
     public static final String SERVERIP = "192.168.1.10"; //your computer IP address
     public static final int SERVERPORT = 9000;
     private OnMessageReceived mMessageListener = null;
@@ -29,7 +29,7 @@ public class TCPClient {
     private SSLContext sslContext = null;
     private SSLSocket socket;
  
-    PrintWriter out;
+    BufferedWriter out;
     BufferedReader in;
  
     /**
@@ -62,12 +62,17 @@ public class TCPClient {
  
     /**
      * Sends the message entered by client to the server
-     * @param message text entered by client
+     * @param message text from client to server
      */
     public void sendMessage(String message){
-        if (out != null && !out.checkError()) {
-            out.println(message);
-            out.flush();
+        if (out != null) {
+            try {
+				out.write(message, 0, message.length() );
+	            out.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+                Log.e("TCP", "sendMesssage Error", e);
+			}
         }
     }
  
@@ -148,17 +153,29 @@ public class TCPClient {
  
             try {
  
-                //send the message to the server
-                out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-                Log.e("TCP Client", "C: Done.");
+                //writer to send the message to the server
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                Log.e("TCP Client", "BufferedWriter on OutputStream of socket created.");
  
                 //receive the message which the server sends back
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
  
                 //in this while the client listens for the messages sent by the server
                 while (mRun) {
-                    serverMessage = in.readLine();
+                	int length = 0;
+                    if (in.ready()){	// total length of message is in s4 bytes before the actual xml message
+                    	char[] msg_len = new char[4];
+                    	if (in.read(msg_len) == 4){
+                    		length = Integer.parseInt(new String(msg_len));
+                    	};            	
+                    };
  
+                    if (in.ready() && length > 4){
+                    	char[] server_xml = new char[length-4];
+                    	if (in.read(server_xml) == (length-4)){
+                    		serverMessage = new String(server_xml);
+                    	}
+                    }
                     if (serverMessage != null && mMessageListener != null) {
                         //call the method messageReceived from MyActivity class
                         mMessageListener.messageReceived(serverMessage);
