@@ -1,2 +1,0 @@
-472<?xml version="1.0" encoding="UTF-8"?>
-<JOBS><!--Jobs available--><JOB status="open"><!--The status of this job is: open--><HEADER><X_ORDER_ID>0000000001</X_ORDER_ID><CUSTOMER_ID>1010</CUSTOMER_ID><NAME_1>Mr Chan</NAME_1><NAME_2>Mrs Chan</NAME_2></HEADER><NEEDS><NEED><TYPE>Geriatric</TYPE><DATE>1 Jan 2015</DATE><TIME>1800</TIME><DURATION>3 hrs</DURATION></NEED><NEED><TYPE>Paediatric</TYPE></NEED></NEEDS><FOOTER><TEXT>This job is urgent.</TEXT></FOOTER></JOB></JOBS>

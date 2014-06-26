@@ -61,7 +61,7 @@ static int port=BASE_PORT;
 #define BASE_PORT_SSL 9000
 static int port_ssl=BASE_PORT_SSL;
 
-#define XML_HEADER_SIZE (38+3)
+#define XML_HEADER_SIZE (38+4)
 
 // Client_list is the HEAD of a queue of connected clients
 TAILQ_HEAD(, _client_entry) Client_list;
@@ -698,7 +698,7 @@ void readcb(struct bufferevent *bev, void *ctx){
     xmlBufferPtr buf;
     const char* xml_string;
     unsigned char *mem;
-    char length[4]; // 3 bytes plus string terminator
+    char length[5]; // 4 bytes plus string terminator
     int message_length;
     char message[MSG_LENGTH];
     xmlTextReaderPtr reader;
@@ -706,11 +706,11 @@ void readcb(struct bufferevent *bev, void *ctx){
 
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
-    if (mem == NULL){ // not enough data to process 3 bytes of length + xml header
+    if (mem == NULL){ // not enough data to process 4 bytes of length + xml header
 	return;
     } else {
-	memcpy(length, mem, 3);
-        length[3] = 0;  // string terminating char
+	memcpy(length, mem, 4);
+        length[4] = 0;  // string terminating char
         message_length = atoi((const char*)length);
         fprintf(stderr, "Message Length = %d\n", message_length);
 	if (message_length >= MSG_LENGTH){
@@ -721,14 +721,14 @@ void readcb(struct bufferevent *bev, void *ctx){
         mem = evbuffer_pullup(inbuf, message_length);
         if (mem == NULL) return;
         else {
-	    memcpy(message, mem+3, message_length-3);
-            message[message_length-3] = 0;
+	    memcpy(message, mem+4, message_length-4);
+            message[message_length-4] = 0;
             evbuffer_drain(inbuf, message_length);
         }
     }
     fprintf(stdout, "%s\n", message);
 
-    reader = xmlReaderForMemory(message, message_length-3, "noname.xml", NULL, 0);
+    reader = xmlReaderForMemory(message, message_length-4, "noname.xml", NULL, 0);
     if (reader != NULL){
 	ret = xmlTextReaderRead(reader);
 	while (ret == 1){
@@ -743,8 +743,8 @@ void readcb(struct bufferevent *bev, void *ctx){
 		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
     			buf = testXmlwriterMemory();
     			xml_string = (const char*) buf->content;
-    			sprintf(length, "%03d", (int)strlen(xml_string)+2);
-    			bufferevent_write(bev, length, 3);
+    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
+    			bufferevent_write(bev, length, 4);
     			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
     			xmlBufferFree(buf);
 		};
