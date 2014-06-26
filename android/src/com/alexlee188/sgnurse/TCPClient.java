@@ -76,7 +76,6 @@ public class TCPClient {
     }
  
     public void run() {
- 
         mRun = true;
  
         try {
@@ -151,9 +150,6 @@ public class TCPClient {
  
                 //send the message to the server
                 out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
- 
-                Log.e("TCP Client", "C: Sent.");
- 
                 Log.e("TCP Client", "C: Done.");
  
                 //receive the message which the server sends back
@@ -181,6 +177,8 @@ public class TCPClient {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 socket.close();
+                in.close();
+                out.close();
             } // end try
             } // end if secured
  
