@@ -149,8 +149,9 @@ public class TCPClient {
             
             SSLSession session = socket.getSession();
             boolean secured = session.isValid();
+  
             if (secured) {
- 
+ /*
             try {
  
                 //writer to send the message to the server
@@ -197,14 +198,14 @@ public class TCPClient {
                 in.close();
                 out.close();
             } // end try
+            
+*/
             } // end if secured
  
         } catch (Exception e) {
- 
-            Log.e("TCP", "C: Error in creating SSL socket", e);
+            Log.e("TCP", "Error in creating SSL socket", e);
             socket = null;
         }
- 
     }
  
     //Declare the interface. The method messageReceived(String message) will must be implemented in the MyActivity

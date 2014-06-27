@@ -277,7 +277,6 @@ public class MainActivity extends ActionBarActivity implements
 	    	 
         @Override
         protected TCPClient doInBackground(String... message) {
-        /*
             //we create a TCPClient object and
             mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
                 @Override
@@ -288,7 +287,6 @@ public class MainActivity extends ActionBarActivity implements
                 }
             });
             mTcpClient.run();
- 		*/
             return null;
         }
  
@@ -302,6 +300,6 @@ public class MainActivity extends ActionBarActivity implements
             // from server was added to the list
             //mAdapter.notifyDataSetChanged();
         }
-	}
+	}	// end Class ConnectTask
 }
 
