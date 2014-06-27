@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements
 		
 		
 		// Start the TCPClient to connect to server
-		// new ConnectTask().execute("");
+		new ConnectTask().execute("");
 
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
@@ -277,7 +277,7 @@ public class MainActivity extends ActionBarActivity implements
 	    	 
         @Override
         protected TCPClient doInBackground(String... message) {
- 
+        /*
             //we create a TCPClient object and
             mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
                 @Override
@@ -288,7 +288,7 @@ public class MainActivity extends ActionBarActivity implements
                 }
             });
             mTcpClient.run();
- 
+ 		*/
             return null;
         }
  
