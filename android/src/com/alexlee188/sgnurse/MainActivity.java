@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
@@ -40,11 +41,18 @@ public class MainActivity extends ActionBarActivity implements
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
-
+	
+	// The TCPClient for connecting to the server
+	static TCPClient mTcpClient;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		
+		// Start the TCPClient to connect to server
+		new ConnectTask().execute("");
 
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
@@ -171,6 +179,7 @@ public class MainActivity extends ActionBarActivity implements
 		 */
 		private static final String ARG_SECTION_NUMBER = "section_number";
 		private Activity activity;
+		
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
@@ -195,6 +204,7 @@ public class MainActivity extends ActionBarActivity implements
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			if (getArguments().getInt(ARG_SECTION_NUMBER) == 1){
+				
 				View rootView = inflater.inflate(R.layout.fragment_list, container,
 						false);
 				final ListView listView = (ListView) rootView.findViewById(R.id.fragment_list);
@@ -208,12 +218,17 @@ public class MainActivity extends ActionBarActivity implements
 		                    "North (AMK) 2014-11-11 0030 1hr", 
 		                    "Central (Chinatown) 2014-10-10 4hr" 
 		                   };
-
-		            	// Define a new Adapter
-		            	// First parameter - Context
-		            	// Second parameter - Layout for the row
-		            	// Third parameter - ID of the TextView to which the data is written
-		            	// Forth - the Array of data
+		
+	            //sends the message to the server
+                if (mTcpClient != null) {
+                    mTcpClient.sendMessage("Test");
+                }
+			    
+		        // Define a new Adapter
+		        // First parameter - Context
+		        // Second parameter - Layout for the row
+		        // Third parameter - ID of the TextView to which the data is written
+		        // Forth - the Array of data
 			     
 				// ArrayAdapter needs to be associated with the activity
 				// and the activity is not NULL only after the fragment is
@@ -244,8 +259,8 @@ public class MainActivity extends ActionBarActivity implements
 	                  }
 	    
 	             }); 
-				
 				return rootView;
+				
 			} else {
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
 					false);
@@ -256,6 +271,37 @@ public class MainActivity extends ActionBarActivity implements
 			return rootView;
 			}
 		}
+	}
+	
+	public class ConnectTask extends AsyncTask<String,String,TCPClient> {
+	    	 
+        @Override
+        protected TCPClient doInBackground(String... message) {
+ 
+            //we create a TCPClient object and
+            mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                }
+            });
+            mTcpClient.run();
+ 
+            return null;
+        }
+ 
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+ 
+            //in the arrayList we add the messaged received from server
+            //arrayList.add(values[0]);
+            // notify the adapter that the data set has changed. This means that new message received
+            // from server was added to the list
+            //mAdapter.notifyDataSetChanged();
+        }
 	}
 }
 

@@ -1,4 +1,7 @@
 android/bin/*.*
 andoird/bin/classes/*.*
 android/gen/*.*
+android/gen/com/alexlee188sgnurse/*.*
+android/gen/android/support/v7/appcompat/*.*
+
 
