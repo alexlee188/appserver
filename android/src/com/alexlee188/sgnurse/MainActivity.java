@@ -240,7 +240,7 @@ public class MainActivity extends ActionBarActivity implements
 	                   String  itemValue    = (String) listView.getItemAtPosition(position);
 	                      
 	                    // Show Alert 
-	                    Toast.makeText(activity,
+	                    Toast.makeText(getActivity().getBaseContext(),
 	                      "Position :"+itemPosition+"  ListItem : " +itemValue , Toast.LENGTH_LONG)
 	                      .show();
 	                 
