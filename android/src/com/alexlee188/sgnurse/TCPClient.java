@@ -163,19 +163,19 @@ public class TCPClient {
                 //in this while the client listens for the messages sent by the server
                 while (mRun) {
                 	int length = 0;
-                    if (in.ready()){	// total length of message is in s4 bytes before the actual xml message
+                    // total length of message is in 4 bytes before the actual xml message
                     	char[] msg_len = new char[4];
                     	if (in.read(msg_len) == 4){
                     		length = Integer.parseInt(new String(msg_len));
+                    		length -= 4;
                     	};            	
-                    };
  
-                    if (in.ready() && length > 4){
-                    	char[] server_xml = new char[length-4];
-                    	if (in.read(server_xml) == (length-4)){
+                    	if (length > 0){
+                    		char[] server_xml = new char[length];
+                    		if (in.read(server_xml) == length){
                     		serverMessage = new String(server_xml);
+                    		}
                     	}
-                    }
                     if (serverMessage != null && mMessageListener != null) {
                         //call the method messageReceived from MyActivity class
                         mMessageListener.messageReceived(serverMessage);
