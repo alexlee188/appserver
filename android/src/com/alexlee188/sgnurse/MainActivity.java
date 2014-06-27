@@ -188,7 +188,6 @@ public class MainActivity extends ActionBarActivity implements
 		 * fragment.
 		 */
 		private static final String ARG_SECTION_NUMBER = "section_number";
-		private Activity activity;
 		
 		/**
 		 * Returns a new instance of this fragment for the given section number.
@@ -203,12 +202,6 @@ public class MainActivity extends ActionBarActivity implements
 
 		public PlaceholderFragment() {
 		}
-		
-	    @Override
-	    public void onAttach(Activity activity) {
-	        super.onAttach(activity);
-            this.activity = activity;
-	    }
 	    
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -228,7 +221,7 @@ public class MainActivity extends ActionBarActivity implements
 				// ArrayAdapter needs to be associated with the activity.
 				// If used in a fragment, the activity is not NULL only after the fragment is
 				// attached
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getBaseContext(),
 						android.R.layout.simple_list_item_1, android.R.id.text1, list_values);
 				// Assign adapter to ListView
 	            listView.setAdapter(adapter); 
