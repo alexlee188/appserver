@@ -43,7 +43,7 @@ public class MainActivity extends ActionBarActivity implements
 	ViewPager mViewPager;
 	
 	// The TCPClient for connecting to the server
-	static TCPClient mTcpClient;
+	static TCPClient mTcpClient = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements
 		
 		
 		// Start the TCPClient to connect to server
-		new ConnectTask().execute("");
+		// new ConnectTask().execute("");
 
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
