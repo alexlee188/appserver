@@ -45,6 +45,16 @@ public class MainActivity extends ActionBarActivity implements
 	// The TCPClient for connecting to the server
 	static TCPClient mTcpClient = null;
 	
+    static String[] list_values = new String[] { "North (Woodlands) 2014-08-12 1600 2hr", 
+            "North (Yishun) 2014-09-11 2000 1hr",
+            "Central (Bugis) 2014-09-05 1800 1hr Wound Care",
+            "East (Bedok) 2014-07-10 1900 2hr", 
+            "West (Jurong) 2014-11-10 1000 8hr", 
+            "West (Jurong) 2014-08-11 2000 2hr", 
+            "North (AMK) 2014-11-11 0030 1hr", 
+            "Central (Chinatown) 2014-10-10 4hr" 
+           };
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -208,21 +218,6 @@ public class MainActivity extends ActionBarActivity implements
 				View rootView = inflater.inflate(R.layout.fragment_list, container,
 						false);
 				final ListView listView = (ListView) rootView.findViewById(R.id.fragment_list);
-				
-			    String[] values = new String[] { "North (Woodlands) 2014-08-12 1600 2hr", 
-		                    "North (Yishun) 2014-09-11 2000 1hr",
-		                    "Central (Bugis) 2014-09-05 1800 1hr Wound Care",
-		                    "East (Bedok) 2014-07-10 1900 2hr", 
-		                    "West (Jurong) 2014-11-10 1000 8hr", 
-		                    "West (Jurong) 2014-08-11 2000 2hr", 
-		                    "North (AMK) 2014-11-11 0030 1hr", 
-		                    "Central (Chinatown) 2014-10-10 4hr" 
-		                   };
-		
-	            //sends the message to the server
-                if (mTcpClient != null) {
-                    mTcpClient.sendMessage("Test");
-                }
 			    
 		        // Define a new Adapter
 		        // First parameter - Context
@@ -230,11 +225,11 @@ public class MainActivity extends ActionBarActivity implements
 		        // Third parameter - ID of the TextView to which the data is written
 		        // Forth - the Array of data
 			     
-				// ArrayAdapter needs to be associated with the activity
-				// and the activity is not NULL only after the fragment is
+				// ArrayAdapter needs to be associated with the activity.
+				// If used in a fragment, the activity is not NULL only after the fragment is
 				// attached
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
-        				android.R.layout.simple_list_item_1, android.R.id.text1, values);;
+						android.R.layout.simple_list_item_1, android.R.id.text1, list_values);
 				// Assign adapter to ListView
 	            listView.setAdapter(adapter); 
 	            
@@ -294,8 +289,6 @@ public class MainActivity extends ActionBarActivity implements
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
  
-            //in the arrayList we add the messaged received from server
-            //arrayList.add(values[0]);
             // notify the adapter that the data set has changed. This means that new message received
             // from server was added to the list
             //mAdapter.notifyDataSetChanged();

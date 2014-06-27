@@ -163,9 +163,6 @@ public class TCPClient {
                 //receive the message which the server sends back
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
  
-/*
-                //in this while the client listens for the messages sent by the server
-                while (mRun) {
                 	int length = 0;
                     // total length of message is in 4 bytes before the actual xml message
                     	char[] msg_len = new char[4];
@@ -184,12 +181,8 @@ public class TCPClient {
                         //call the method messageReceived from MyActivity class
                         mMessageListener.messageReceived(serverMessage);
                     }
-                    serverMessage = null;
- 
-                }
- 
+                    // serverMessage = null;
                 Log.e("RESPONSE FROM SERVER", "S: Received Message: '" + serverMessage + "'");
- */
             } catch (Exception e) {
  
                 Log.e("TCP", "Listening to message from Server Error", e);
