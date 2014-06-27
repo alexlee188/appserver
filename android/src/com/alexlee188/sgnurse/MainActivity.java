@@ -68,7 +68,7 @@ public class MainActivity extends ActionBarActivity implements
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-		// Create the adapter that will return a fragment for each of the three
+		// Create the adapter that will return a fragment for each of the four
 		// primary sections of the activity.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
 				getSupportFragmentManager());
@@ -188,7 +188,17 @@ public class MainActivity extends ActionBarActivity implements
 		 * fragment.
 		 */
 		private static final String ARG_SECTION_NUMBER = "section_number";
-		
+        // Define a new Adapter
+        // First parameter - Context
+        // Second parameter - Layout for the row
+        // Third parameter - ID of the TextView to which the data is written
+        // Forth - the Array of data
+	     
+		// ArrayAdapter needs to be associated with the activity.
+		// If used in a fragment, the activity is not NULL only after the fragment is
+		// attached
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getBaseContext(),
+				android.R.layout.simple_list_item_1, android.R.id.text1, list_values);
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
@@ -203,6 +213,15 @@ public class MainActivity extends ActionBarActivity implements
 		public PlaceholderFragment() {
 		}
 	    
+		public void fragment_adapter_add(String msg){
+			adapter.add(msg);
+			adapter.notifyDataSetChanged();
+		}
+		
+		public void fragment_adapter_clear(){
+			adapter.clear();
+		}
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -212,17 +231,6 @@ public class MainActivity extends ActionBarActivity implements
 						false);
 				final ListView listView = (ListView) rootView.findViewById(R.id.fragment_list);
 			    
-		        // Define a new Adapter
-		        // First parameter - Context
-		        // Second parameter - Layout for the row
-		        // Third parameter - ID of the TextView to which the data is written
-		        // Forth - the Array of data
-			     
-				// ArrayAdapter needs to be associated with the activity.
-				// If used in a fragment, the activity is not NULL only after the fragment is
-				// attached
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getBaseContext(),
-						android.R.layout.simple_list_item_1, android.R.id.text1, list_values);
 				// Assign adapter to ListView
 	            listView.setAdapter(adapter); 
 	            
