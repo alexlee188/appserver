@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.lang.StringBuffer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -287,9 +288,10 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            list_values = new String [4];
 
+            ArrayList<String> list = new ArrayList<String>();
             XmlPullParserFactory factory;
+            StringBuilder s = new StringBuilder();
 			try {
 				factory = XmlPullParserFactory.newInstance();
 				factory.setNamespaceAware(true);
@@ -299,11 +301,10 @@ public class MainActivity extends ActionBarActivity implements
 		        while (eventType != XmlPullParser.END_DOCUMENT) {
 		          if(eventType == XmlPullParser.START_DOCUMENT) {
 		          } else if(eventType == XmlPullParser.START_TAG) {
-		              list_values[0] = xpp.getName();
-		          } else if(eventType == XmlPullParser.END_TAG) {
-		              list_values[1] = xpp.getName();
+		        	  list.add(xpp.getName());
 		          } else if(eventType == XmlPullParser.TEXT) {
-		              list_values[2] = xpp.getText();
+		        	  list.add(xpp.getText());
+		          } else if(eventType == XmlPullParser.END_TAG) {
 		          }
 		          eventType = xpp.next();
 		         }
@@ -314,7 +315,7 @@ public class MainActivity extends ActionBarActivity implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			list_values = list.toArray(new String[list.size()]);
             mSectionsPagerAdapter.notifyDataSetChanged();
         }
 	}	// end Class ConnectTask
