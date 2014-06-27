@@ -1,5 +1,7 @@
 package com.alexlee188.sgnurse;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -24,6 +26,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 public class MainActivity extends ActionBarActivity implements
 		ActionBar.TabListener {
@@ -281,8 +287,34 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            list_values = new String [1];
-            list_values[0] = values[0];
+            list_values = new String [4];
+
+            XmlPullParserFactory factory;
+			try {
+				factory = XmlPullParserFactory.newInstance();
+				factory.setNamespaceAware(true);
+				XmlPullParser xpp = factory.newPullParser();
+				xpp.setInput(new StringReader(values[0]));
+		        int eventType = xpp.getEventType();
+		        while (eventType != XmlPullParser.END_DOCUMENT) {
+		          if(eventType == XmlPullParser.START_DOCUMENT) {
+		          } else if(eventType == XmlPullParser.START_TAG) {
+		              list_values[0] = xpp.getName();
+		          } else if(eventType == XmlPullParser.END_TAG) {
+		              list_values[1] = xpp.getName();
+		          } else if(eventType == XmlPullParser.TEXT) {
+		              list_values[2] = xpp.getText();
+		          }
+		          eventType = xpp.next();
+		         }
+			} catch (XmlPullParserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
             mSectionsPagerAdapter.notifyDataSetChanged();
         }
 	}	// end Class ConnectTask
