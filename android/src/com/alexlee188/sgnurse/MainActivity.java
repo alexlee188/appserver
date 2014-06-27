@@ -281,10 +281,9 @@ public class MainActivity extends ActionBarActivity implements
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
- 
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-            //mAdapter.notifyDataSetChanged();
+            list_values = new String [1];
+            list_values[0] = values[0];
+            mSectionsPagerAdapter.notifyDataSetChanged();
         }
 	}	// end Class ConnectTask
 }
