@@ -20,7 +20,7 @@ import javax.net.ssl.X509TrustManager;
 
 public class TCPClient {
     private String serverMessage = null;
-    public static final String SERVERIP = "192.168.1.10"; //your computer IP address
+    public static final String SERVERIP = "124.197.76.13"; //your computer IP address
     public static final int SERVERPORT = 9000;
     private OnMessageReceived mMessageListener = null;
     private boolean mRun = false;

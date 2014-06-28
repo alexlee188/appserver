@@ -4,19 +4,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.lang.StringBuffer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.app.Activity;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,15 +49,9 @@ public class MainActivity extends ActionBarActivity implements
 	// The TCPClient for connecting to the server
 	static TCPClient mTcpClient = null;
 	
-    static String[] list_values = new String[] { "North (Woodlands) 2014-08-12 1600 2hr", 
-            "North (Yishun) 2014-09-11 2000 1hr",
-            "Central (Bugis) 2014-09-05 1800 1hr Wound Care",
-            "East (Bedok) 2014-07-10 1900 2hr", 
-            "West (Jurong) 2014-11-10 1000 8hr", 
-            "West (Jurong) 2014-08-11 2000 2hr", 
-            "North (AMK) 2014-11-11 0030 1hr", 
-            "Central (Chinatown) 2014-10-10 4hr" 
-           };
+    static String[] list_values = new String[] { "Postcode:123123 Change of head dressing Needs: Wound Care Date-time:2014-10-11 10:30 for 2.0 HR",
+    	"Postcode:909654 General Care Date-time:2014-11-30 18:00 for 4 HR"
+    };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +140,7 @@ public class MainActivity extends ActionBarActivity implements
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
 	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+	public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -184,6 +175,21 @@ public class MainActivity extends ActionBarActivity implements
 			}
 			return null;
 		}
+		
+		@Override
+		public int getItemPosition(Object item) {
+	        PlaceholderFragment fragment = (PlaceholderFragment)item;
+	        if (fragment.getArguments().getInt(ARG_SECTION_NUMBER) == 1){
+	            return POSITION_NONE;
+	        }
+	        else return POSITION_UNCHANGED;
+	    }
+		
+		/**
+		 * The fragment argument representing the section number for this
+		 * fragment.
+		 */
+		private static final String ARG_SECTION_NUMBER = "section_number";
 	}
 
 	/**
@@ -291,7 +297,7 @@ public class MainActivity extends ActionBarActivity implements
 
             ArrayList<String> list = new ArrayList<String>();
             XmlPullParserFactory factory;
-            StringBuilder s = new StringBuilder();
+            StringBuilder s = null;
 			try {
 				factory = XmlPullParserFactory.newInstance();
 				factory.setNamespaceAware(true);
@@ -301,10 +307,45 @@ public class MainActivity extends ActionBarActivity implements
 		        while (eventType != XmlPullParser.END_DOCUMENT) {
 		          if(eventType == XmlPullParser.START_DOCUMENT) {
 		          } else if(eventType == XmlPullParser.START_TAG) {
-		        	  list.add(xpp.getName());
+		        	  if (xpp.getName().equalsIgnoreCase("JOB")){
+		        		  s = new StringBuilder();
+		        	  }
+		        	  else if (xpp.getName().equalsIgnoreCase("ADDR_POSTCODE")){
+		        		  eventType = xpp.next();
+		        		  if(eventType == XmlPullParser.TEXT)
+		        			  s.append("Postcode:");
+		        			  s.append(xpp.getText());
+		        	  }	
+		        	  else if (xpp.getName().equalsIgnoreCase("JOB_DESC")){
+		        		  eventType = xpp.next();
+		        		  if(eventType == XmlPullParser.TEXT)
+		        		  	  s.append(" ");
+		        			  s.append(xpp.getText());
+		        	  }
+		        	  else if (xpp.getName().equalsIgnoreCase("NEED")){
+		        		  eventType = xpp.next();
+		        		  if(eventType == XmlPullParser.TEXT)
+		        		  	  s.append(" Needs:");
+		        			  s.append(xpp.getText());
+		        	  }	
+		        	  else if (xpp.getName().equalsIgnoreCase("JOB_START_TIME")){
+		        		  eventType = xpp.next();
+		        		  if(eventType == XmlPullParser.TEXT)
+		        		  	  s.append(" Date-Time:");
+		        			  s.append(xpp.getText());
+		        	  }
+		        	  else if (xpp.getName().equalsIgnoreCase("JOB_DURATION")){
+		        		  eventType = xpp.next();
+		        		  if(eventType == XmlPullParser.TEXT)
+		        		  	  s.append(" for ");
+		        			  s.append(xpp.getText());
+		        	  }	
 		          } else if(eventType == XmlPullParser.TEXT) {
-		        	  list.add(xpp.getText());
 		          } else if(eventType == XmlPullParser.END_TAG) {
+		        	  if (xpp.getName().equalsIgnoreCase("JOB")){
+		        		  list.add(s.toString());
+		        		  s = new StringBuilder();
+		        	  }
 		          }
 		          eventType = xpp.next();
 		         }
