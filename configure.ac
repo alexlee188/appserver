@@ -131,8 +131,8 @@ AC_SEARCH_LIBS([bufferevent_openssl_socket_new], [event_openssl],[have_event20_o
 have_xml2=no
 AC_SEARCH_LIBS([xmlCleanupParser], [xml2],[have_xml2=yes])
 
-have_sqlite3=no
-AC_SEARCH_LIBS([sqlite3_open],[sqlite3],[have_sqlite3=yes])
+have_mysql=no
+AC_SEARCH_LIBS([mysql_get_client_info],[mysqlclient],[have_mysql=yes])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
@@ -214,14 +214,14 @@ if test "x${have_xml2}" = xno; then
 -------------------------------------])
 fi
 
-if test "x${have_sqlite3}" = xyes; then
-    AC_CHECK_HEADERS([sqlite3.h],[],[have_sqlite3=no])
+if test "x${have_mysql}" = xyes; then
+    AC_CHECK_HEADERS([mysql/mysql.h],[],[have_mysql=no])
 fi
 
-if test "x${have_sqlite3}" = xno; then
+if test "x${have_mysql}" = xno; then
     AC_MSG_ERROR([
 --------------------------------------
-    The libsqlite3 library and header files with sqlite3 support required.
+    The mysql client library and header files with sqlite3 support required.
 --------------------------------------])
 fi
 
