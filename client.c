@@ -36,6 +36,7 @@
 #include <math.h>
 #include <time.h>
 #include <sys/timeb.h>
+#include <sys/types.h>
 #include <samplerate.h>
 #ifdef _OPENMP
 #include <omp.h>
@@ -48,7 +49,10 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 
-#include <sqlite3.h>
+typedef unsigned int uint;
+typedef unsigned long ulong;
+#include <mysql/my_global.h>
+#include <mysql/mysql.h>
 
 #include "client.h"
 #include "main.h"
@@ -80,147 +84,23 @@ xmlChar *ConvertInput(const char *in, const char *encoding);
 
 xmlTextWriterPtr writer;
 
-static int GetJobs_callback(void *NotUsed, int argc, char **argv, char **azColName){
-    int i;
-    int rc;
-    xmlChar *tmp;
+MYSQL *con;
 
-/*  // dump all results of sql query
-    for(i=0; i<argc; i++){
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-    }
-    printf("\n");
-*/
 
-    /* Start an element named "JOB" as child of JOBS. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return 0;
-    }
-
-    /* Add an attribute with name "status" and value to JOB. */
-    tmp = ConvertInput(argv[0]?argv[0]:"NULL", MY_ENCODING);
-    rc = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "STATUS",
-                                     "%s", tmp);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatAttribute\n");
-        return 0;
-    }
-
-    if (tmp != NULL) xmlFree(tmp);
-
-    /* Write an element named "JOB_ID" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_ID",
-                                         "%s", argv[1]?argv[1]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    /* Write an element named "CUSTOMER_ID" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
-                                         "%s", argv[2]?argv[2]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    /* Write an element named "ADDR_POSTCODE" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_POSTCODE",
-                                         "%s", argv[3]?argv[3]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
-                                         "%s", argv[4]?argv[4]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    /* Start an element named "NEEDS" as child of JOB. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return 0;
-    }
-
-    for (i=5; i<8; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
-    /* Write an element named "NEED" as child of NEEDS. */
-      if (argv[i] != NULL){
-    	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NEED", "%s", argv[i]);
-    	if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-        }
-       }
-    }
-
-    // end NEEDS
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return 0;
-    }
-
-    /* Write an element named "JOB_START_TIME" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_START_TIME",
-                                         "%s", argv[8]?argv[8]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    /* Write an element named "JOB_DURATION" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DURATION",
-                                         "%s HR", argv[9]?argv[9]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    // end JOB
-    rc = xmlTextWriterEndElement(writer);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return 0;
-    }
-    return 0;
+void finish_with_error(MYSQL *con)
+{
+  fprintf(stderr, "%s\n", mysql_error(con));
+  mysql_close(con);
+  exit(1);        
 }
-
 
 xmlBufferPtr
 testXmlwriterMemory()
 {
-    int rc;
+    int rc, i;
 
     xmlBufferPtr buf;
     xmlChar *tmp;
-
-    sqlite3 *db;
-    char *zErrMsg = 0;
-
-    rc = sqlite3_open("appserver.db", &db);
-    if( rc ){
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      sqlite3_close(db);
-      return(NULL);
-    }
 
     /* Create a new XML buffer, to which the XML document will be
      * written */
@@ -271,13 +151,137 @@ testXmlwriterMemory()
     }
     if (tmp != NULL) xmlFree(tmp);
 
-    // here does SQL call to retrieve rows of JOB
-    rc = sqlite3_exec(db, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB", GetJobs_callback, 0, &zErrMsg);
-    if( rc!=SQLITE_OK ){
-      fprintf(stderr, "SQL error: %s\n", zErrMsg);
-      sqlite3_free(zErrMsg);
+    if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB")) {      
+    	finish_with_error(con);
     }
-    sqlite3_close(db);
+
+    MYSQL_RES *result = mysql_store_result(con);
+  
+    if (result == NULL) 
+    {
+      finish_with_error(con);
+    }
+
+    int num_fields = mysql_num_fields(result);
+    if (num_fields != 10){
+	finish_with_error(con);
+	}
+
+    MYSQL_ROW row;
+  
+    while ((row = mysql_fetch_row(result))) 
+    { 
+      /* Start an element named "JOB" as child of JOBS. */
+      rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return 0;
+      }
+
+      /* Add an attribute with name "status" and value to JOB. */
+      tmp = ConvertInput(row[0]?row[0]:"NULL", MY_ENCODING);
+      rc = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "STATUS",
+                                     "%s", tmp);
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatAttribute\n");
+        return 0;
+      }
+
+      if (tmp != NULL) xmlFree(tmp);
+
+      /* Write an element named "JOB_ID" as child of JOB. */
+      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_ID",
+                                         "%s", row[1]?row[1]:"NULL");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+      }
+
+      /* Write an element named "CUSTOMER_ID" as child of JOB. */
+      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
+                                         "%s", row[2]?row[2]:"NULL");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+      }
+
+      /* Write an element named "ADDR_POSTCODE" as child of JOB. */
+      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_POSTCODE",
+                                         "%s", row[3]?row[3]:"NULL");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+      }
+
+      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
+                                         "%s", row[4]?row[4]:"NULL");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+      }
+
+      /* Start an element named "NEEDS" as child of JOB. */
+      rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+        return 0;
+      }
+
+      for (i=5; i<8; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
+      /* Write an element named "NEED" as child of NEEDS. */
+	if (row[i]){
+    	  rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NEED", "%s", row[i]?row[i]:"NULL");
+    	  if (rc < 0) {
+          printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+          return 0;
+          }
+	}
+      }
+
+      // end NEEDS
+      rc = xmlTextWriterEndElement(writer);
+      if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return 0;
+      }
+
+    /* Write an element named "JOB_START_TIME" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_START_TIME",
+                                         "%s", row[8]?row[8]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    /* Write an element named "JOB_DURATION" as child of JOB. */
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DURATION",
+                                         "%s HR", row[9]?row[9]:"NULL");
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
+        return 0;
+    }
+
+    // end JOB
+    rc = xmlTextWriterEndElement(writer);
+
+    if (rc < 0) {
+        printf
+            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
+        return 0;
+	}
+
+    } // end while database row
 
     /* Here we could close the elements using the
      * function xmlTextWriterEndElement, but since we do not want to
@@ -369,6 +373,23 @@ void client_init(int channel) {
      * library used.
      */
     LIBXML_TEST_VERSION
+
+    // initialise mySQL
+
+    con = mysql_init(NULL);
+
+    if (con == NULL) 
+    {
+      fprintf(stderr, "%s\n", mysql_error(con));
+      exit(1);
+    }
+
+    if (mysql_real_connect(con, "localhost", "root", "alex", 
+          "gcm", 0, NULL, 0) == NULL) 
+    {
+	finish_with_error(con);
+    }  
+
 
     port=BASE_PORT+channel;
     port_ssl = BASE_PORT_SSL + channel;
