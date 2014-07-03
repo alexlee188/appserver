@@ -38,7 +38,6 @@ CREATE TABLE `gcm_users` (
 
 LOCK TABLES `gcm_users` WRITE;
 /*!40000 ALTER TABLE `gcm_users` DISABLE KEYS */;
-INSERT INTO `gcm_users` VALUES (1,'APA91bEnmreLQYNfeEusIXc1BUUQPa6qfFJJ1N1c9YPeaVRi1IsHecLWGK9Okvwlx145QEmixrMdTnSXtZTw-psCSPBUDXBEytQwveCaTxlhC5OFiYLAcTsj1txvhQ1GTPXsIy4HoYVLAJdjXW1mAiFZZhY0-q2nYA','xiaomi','noname@somewhere.org','2014-07-01 01:59:02'),(2,'APA91bGuwrip0MqxF-4JuzkEMNeRXGFpfzeQDuJP9ks4JcbmpEHdzSFp0yVOXttmeh-4fj4ih4ib5lyodqiVEmT2f2ymv_QSyC2nYCxC1xNajalup2F2GCo_blp0N__A5JbA57BcQRYnueykEBI_x1JLWb1DLFhIAQ','nexas 7','noname@somewhere.org','2014-07-01 02:15:02'),(4,'APA91bGjD6XhDUBr3NvcEr2Gp3iYc8-ybPpWWVPX4sy5eX9hOetVvEQZ4rV91g2hKVjX4nhZplB__31U4GizdJHrgzJ0SfkM4wDy4mgaT-zyZ1vu1z3fAKi6gOdTIjKx8lcL3EfVaXt6qymLkTaPvHtEwcmhA-4-hw','Note','noname@somewhere.org','2014-07-01 07:36:49'),(5,'APA91bEJLc1lcWPizz-JddRSXoV1rk3TUiUGxb2tNflbDKZ9wIuiENBWssuTycdwuYcTmAXXaC4efHhZZDPsSB2-gdA_ah8fwSNI_v6JFpulTe7s6tMKDNvJMW_3U8mgymXQBmVO6zOSHMGAPZwOHx16E45q1kGRDA','Samsung Tab','noname@somewhere.org','2014-07-01 08:59:50');
 /*!40000 ALTER TABLE `gcm_users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
