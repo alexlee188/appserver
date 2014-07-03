@@ -16,34 +16,29 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `JOB`
+-- Table structure for table `gcm_users`
 --
 
-DROP TABLE IF EXISTS `JOB`;
+DROP TABLE IF EXISTS `gcm_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `JOB` (
-  `JOB_ID` int(11) NOT NULL AUTO_INCREMENT,
-  `CUSTOMER_ID` int(11) DEFAULT NULL,
-  `JOB_DESC` text,
-  `JOB_NEED_1` varchar(20) DEFAULT NULL,
-  `JOB_NEED_2` varchar(20) DEFAULT NULL,
-  `JOB_NEED_3` varchar(20) DEFAULT NULL,
-  `JOB_START_TIME` datetime DEFAULT NULL,
-  `JOB_DURATION` double DEFAULT '1',
-  `JOB_STATUS` varchar(10) DEFAULT 'open',
-  PRIMARY KEY (`JOB_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+CREATE TABLE `gcm_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gcm_regid` text,
+  `name` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `JOB`
+-- Dumping data for table `gcm_users`
 --
 
-LOCK TABLES `JOB` WRITE;
-/*!40000 ALTER TABLE `JOB` DISABLE KEYS */;
-INSERT INTO `JOB` VALUES (1,1,'Change of leg dressing','wound care',NULL,NULL,'2014-11-10 18:00:00',2.5,'open'),(2,2,'General','Geriatrics',NULL,NULL,'2014-09-30 12:00:00',1,'open'),(3,1,'General',NULL,NULL,NULL,'2014-10-10 18:00:00',1.5,'open'),(4,3,'Bathing and Turning','Geriatrics',NULL,NULL,'2014-09-28 12:00:00',1,'open');
-/*!40000 ALTER TABLE `JOB` ENABLE KEYS */;
+LOCK TABLES `gcm_users` WRITE;
+/*!40000 ALTER TABLE `gcm_users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gcm_users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +50,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-07-03 19:21:51
+-- Dump completed on 2014-07-03 19:18:20
