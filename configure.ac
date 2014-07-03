@@ -221,7 +221,7 @@ fi
 if test "x${have_mysql}" = xno; then
     AC_MSG_ERROR([
 --------------------------------------
-    The mysql client library and header files with sqlite3 support required.
+    The mysql client library and header files with mysql support required.
 --------------------------------------])
 fi
 
