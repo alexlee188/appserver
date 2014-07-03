@@ -283,6 +283,9 @@ testXmlwriterMemory()
 
     } // end while database row
 
+    mysql_free_result(result);
+
+
     /* Here we could close the elements using the
      * function xmlTextWriterEndElement, but since we do not want to
      * write any other elements, we simply call xmlTextWriterEndDocument,
@@ -384,7 +387,7 @@ void client_init(int channel) {
       exit(1);
     }
 
-    if (mysql_real_connect(con, "localhost", "root", "alex", 
+    if (mysql_real_connect(con, "localhost", "gcm_user", "gcm_user188", 
           "gcm", 0, NULL, 0) == NULL) 
     {
 	finish_with_error(con);
@@ -719,6 +722,7 @@ void* client_thread(void* arg) {
     evconnlistener_free(listener);
     thread_cleanup();
     SSL_CTX_free(ctx);
+    mysql_close(con);
 
     return NULL;
 }
