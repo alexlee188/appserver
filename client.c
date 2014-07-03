@@ -37,7 +37,6 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include <sys/types.h>
-#include <samplerate.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
