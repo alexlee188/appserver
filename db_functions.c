@@ -58,5 +58,5 @@ void finish_with_error(MYSQL *con)
   exit(1);        
 }
 
-void insert_registration_to_db(){
+void insert_registration_to_db(char* name, char* gcm_regid){
 }

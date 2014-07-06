@@ -475,7 +475,13 @@ void readcb(struct bufferevent *bev, void *ctx){
 		}
             }  // name is QUERY
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){
-		insert_registration_to_db();
+		xmlChar * name = xmlTextReaderGetAttribute(reader, BAD_CAST "name");
+		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
+		if ((name != NULL) && (gcm_regid != NULL)){
+		insert_registration_to_db((char*) name, (char*) gcm_regid);
+		free(name);
+		free(gcm_regid);
+		}
 	    };
             ret = xmlTextReaderRead(reader);
         } // ret == 1
