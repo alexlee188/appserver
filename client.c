@@ -44,17 +44,11 @@
 /* For fcntl */
 #include <fcntl.h>
 
-#include <libxml/encoding.h>
-#include <libxml/xmlwriter.h>
-#include <libxml/xmlreader.h>
-
-typedef unsigned int uint;
-typedef unsigned long ulong;
-#include <mysql/my_global.h>
-#include <mysql/mysql.h>
 
 #include "client.h"
 #include "main.h"
+#include "db_functions.h"
+#include "xml_functions.h"
 
 static pthread_t client_thread_id;
 
@@ -71,293 +65,7 @@ TAILQ_HEAD(, _client_entry) Client_list;
 
 
 void* client_thread(void* arg);
-
 void client_set_samples(char *client_samples, float* samples,int size);
-
-//============================= xml codes ==========================
-//#define MY_ENCODING "ISO-8859-1"
-#define MY_ENCODING "UTF-8"
-
-xmlBufferPtr testXmlwriterMemory(void);
-xmlChar *ConvertInput(const char *in, const char *encoding);
-
-xmlTextWriterPtr writer;
-
-MYSQL *con;
-
-
-void finish_with_error(MYSQL *con)
-{
-  fprintf(stderr, "%s\n", mysql_error(con));
-  mysql_close(con);
-  exit(1);        
-}
-
-xmlBufferPtr
-testXmlwriterMemory()
-{
-    int rc, i;
-
-    xmlBufferPtr buf;
-    xmlChar *tmp;
-
-    /* Create a new XML buffer, to which the XML document will be
-     * written */
-    buf = xmlBufferCreate();
-    if (buf == NULL) {
-        printf("testXmlwriterMemory: Error creating the xml buffer\n");
-        return NULL;
-    }
-
-    /* Create a new XmlWriter for memory, with no compression.
-     * Remark: there is no compression for this kind of xmlTextWriter */
-    writer = xmlNewTextWriterMemory(buf, 0);
-    if (writer == NULL) {
-        printf("testXmlwriterMemory: Error creating the xml writer\n");
-        return NULL;
-    }
-
-    /* Start the document with the xml default for the version,
-     * encoding ISO 8859-1 and the default for the standalone
-     * declaration. */
-    rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartDocument\n");
-        return NULL;
-    }
-
-    /* Start an element named "JOBS". Since thist is the first
-     * element, this will be the root element of the document. */
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "JOBS");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return NULL;
-    }
-
-    /* Write a comment as child of JOBS.
-     * Please observe, that the input to the xmlTextWriter functions
-     * HAS to be in UTF-8, even if the output XML is encoded
-     * in iso-8859-1 */
-    tmp = ConvertInput("Jobs available",
-                       MY_ENCODING);
-    rc = xmlTextWriterWriteComment(writer, tmp);
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteComment\n");
-        return NULL;
-    }
-    if (tmp != NULL) xmlFree(tmp);
-
-    if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB")) {      
-    	finish_with_error(con);
-    }
-
-    MYSQL_RES *result = mysql_store_result(con);
-  
-    if (result == NULL) 
-    {
-      finish_with_error(con);
-    }
-
-    int num_fields = mysql_num_fields(result);
-    if (num_fields != 10){
-	finish_with_error(con);
-	}
-
-    MYSQL_ROW row;
-  
-    while ((row = mysql_fetch_row(result))) 
-    { 
-      /* Start an element named "JOB" as child of JOBS. */
-      rc = xmlTextWriterStartElement(writer, BAD_CAST "JOB");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return 0;
-      }
-
-      /* Add an attribute with name "status" and value to JOB. */
-      tmp = ConvertInput(row[0]?row[0]:"NULL", MY_ENCODING);
-      rc = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "STATUS",
-                                     "%s", tmp);
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatAttribute\n");
-        return 0;
-      }
-
-      if (tmp != NULL) xmlFree(tmp);
-
-      /* Write an element named "JOB_ID" as child of JOB. */
-      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_ID",
-                                         "%s", row[1]?row[1]:"NULL");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-      }
-
-      /* Write an element named "CUSTOMER_ID" as child of JOB. */
-      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "CUSTOMER_ID",
-                                         "%s", row[2]?row[2]:"NULL");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-      }
-
-      /* Write an element named "ADDR_POSTCODE" as child of JOB. */
-      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_POSTCODE",
-                                         "%s", row[3]?row[3]:"NULL");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-      }
-
-      rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DESC",
-                                         "%s", row[4]?row[4]:"NULL");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-      }
-
-      /* Start an element named "NEEDS" as child of JOB. */
-      rc = xmlTextWriterStartElement(writer, BAD_CAST "NEEDS");
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-        return 0;
-      }
-
-      for (i=5; i<8; i++){  // next 3 columns are JOB_NEED_1, JOB_NEED_2 and JOB_NEED_3
-      /* Write an element named "NEED" as child of NEEDS. */
-	if (row[i]){
-    	  rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NEED", "%s", row[i]?row[i]:"NULL");
-    	  if (rc < 0) {
-          printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-          return 0;
-          }
-	}
-      }
-
-      // end NEEDS
-      rc = xmlTextWriterEndElement(writer);
-      if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return 0;
-      }
-
-    /* Write an element named "JOB_START_TIME" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_START_TIME",
-                                         "%s", row[8]?row[8]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    /* Write an element named "JOB_DURATION" as child of JOB. */
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "JOB_DURATION",
-                                         "%s HR", row[9]?row[9]:"NULL");
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterWriteFormatElement\n");
-        return 0;
-    }
-
-    // end JOB
-    rc = xmlTextWriterEndElement(writer);
-
-    if (rc < 0) {
-        printf
-            ("testXmlwriterMemory: Error at xmlTextWriterEndElement\n");
-        return 0;
-	}
-
-    } // end while database row
-
-    mysql_free_result(result);
-
-
-    /* Here we could close the elements using the
-     * function xmlTextWriterEndElement, but since we do not want to
-     * write any other elements, we simply call xmlTextWriterEndDocument,
-     * which will do all the work. */
-    rc = xmlTextWriterEndDocument(writer);
-    if (rc < 0) {
-        printf("testXmlwriterMemory: Error at xmlTextWriterEndDocument\n");
-        return NULL;
-    }
-
-    xmlFreeTextWriter(writer);
-
-    return buf;
-}
-
-/**
- * ConvertInput:
- * @in: string in a given encoding
- * @encoding: the encoding used
- *
- * Converts @in into UTF-8 for processing with libxml2 APIs
- *
- * Returns the converted UTF-8 string, or NULL in case of error.
- */
-xmlChar *
-ConvertInput(const char *in, const char *encoding)
-{
-    xmlChar *out;
-    int ret;
-    int size;
-    int out_size;
-    int temp;
-    xmlCharEncodingHandlerPtr handler;
-
-    if (in == 0)
-        return 0;
-
-    handler = xmlFindCharEncodingHandler(encoding);
-
-    if (!handler) {
-        printf("ConvertInput: no encoding handler found for '%s'\n",
-               encoding ? encoding : "");
-        return 0;
-    }
-
-    size = (int) strlen(in) + 1;
-    out_size = size * 2 - 1;
-    out = (unsigned char *) xmlMalloc((size_t) out_size);
-
-    if (out != 0) {
-        temp = size - 1;
-        ret = handler->input(out, &out_size, (const xmlChar *) in, &temp);
-        if ((ret < 0) || (temp - size + 1)) {
-            if (ret < 0) {
-                printf("ConvertInput: conversion wasn't successful.\n");
-            } else {
-                printf
-                    ("ConvertInput: conversion wasn't successful. converted: %i octets.\n",
-                     temp);
-            }
-
-            xmlFree(out);
-            out = 0;
-        } else {
-            out = (unsigned char *) xmlRealloc(out, out_size + 1);
-            out[out_size] = 0;  /*null terminating out */
-        }
-    } else {
-        printf("ConvertInput: no mem\n");
-    }
-
-    return out;
-}
 
 
 void client_init(int channel) {
@@ -369,29 +77,12 @@ void client_init(int channel) {
 
     signal(SIGPIPE, SIG_IGN);
 
-    /*
-     * this initialize the library and check potential ABI mismatches
-     * between the version it was compiled for and the actual shared
-     * library used.
-     */
-    LIBXML_TEST_VERSION
 
     // initialise mySQL
-
-    con = mysql_init(NULL);
-
-    if (con == NULL) 
-    {
-      fprintf(stderr, "%s\n", mysql_error(con));
-      exit(1);
-    }
-
-    if (mysql_real_connect(con, "localhost", "gcm_user", "gcm_user188", 
-          "gcm", 0, NULL, 0) == NULL) 
-    {
-	finish_with_error(con);
-    }  
-
+    db_functions_init();
+    
+    // initialise xml
+    xml_functions_init();
 
     port=BASE_PORT+channel;
     port_ssl = BASE_PORT_SSL + channel;
@@ -762,7 +453,6 @@ void readcb(struct bufferevent *bev, void *ctx){
         }
     }
     fprintf(stdout, "%s\n", message);
-
     reader = xmlReaderForMemory(message, message_length-4, "noname.xml", NULL, 0);
     if (reader != NULL){
 	ret = xmlTextReaderRead(reader);
@@ -776,14 +466,17 @@ void readcb(struct bufferevent *bev, void *ctx){
 		value = xmlTextReaderConstValue(reader);
 		type = xmlTextReaderNodeType(reader); // next node should be a #TEXT
 		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
-    			buf = testXmlwriterMemory();
+    			buf = GetJobs();
     			xml_string = (const char*) buf->content;
     			sprintf(length, "%04d", (int)strlen(xml_string)+3);
     			bufferevent_write(bev, length, 4);
     			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
     			xmlBufferFree(buf);
-		};
-            };
+		}
+            }  // name is QUERY
+	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){
+		insert_registration_to_db();
+	    };
             ret = xmlTextReaderRead(reader);
         } // ret == 1
         xmlFreeTextReader(reader);
@@ -792,6 +485,3 @@ void readcb(struct bufferevent *bev, void *ctx){
     } // reader != NULL
 }
 
-void printversion(){
-	 fprintf(stderr,"dspserver string: %s\n",version);
-}
