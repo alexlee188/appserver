@@ -218,12 +218,12 @@ if test "x${have_mysql}" = xyes; then
     AC_CHECK_HEADERS([mysql/mysql.h],[],[have_mysql=no])
 fi
 
-if test "x${have_mysql}" = xno; then
-    AC_MSG_ERROR([
---------------------------------------
-    The mysql client library and header files with mysql support required.
---------------------------------------])
-fi
+#if test "x${have_mysql}" = xno; then
+#    AC_MSG_ERROR([
+#--------------------------------------
+#    The mysql client library and header files with mysql support required.
+#--------------------------------------])
+#fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
