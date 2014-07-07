@@ -61,6 +61,7 @@ void finish_with_error(MYSQL *con)
 
 int insert_registration_to_db(char* name, char* gcm_regid){
     char buf[4096];
+    MYSQL_RES *result;
 
     strcpy(buf, "select * from gcm_users where gcm_regid = '");
     strcat(buf, gcm_regid);
@@ -69,7 +70,13 @@ int insert_registration_to_db(char* name, char* gcm_regid){
     	finish_with_error(con);
     }
 
-    if (mysql_affected_rows(con) > 0){	// gcm_redid is already in table
+    result = mysql_store_result(con);
+    if (result == NULL) 
+    {
+      finish_with_error(con);
+    }
+  
+    if (mysql_fetch_row(result)){  // if not 0, gcm_regid is already in table
 	strcpy(buf, "update gcm_users set name='");
 	strcat(buf, name);
 	strcat(buf, "' where gcm_regid = '");
@@ -78,6 +85,7 @@ int insert_registration_to_db(char* name, char* gcm_regid){
     	if (mysql_query(con, buf)) {      
     		finish_with_error(con);
     	}
+	mysql_free_result(result);
 	return 0; // success
     } else {
 
