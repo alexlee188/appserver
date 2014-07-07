@@ -429,8 +429,7 @@ void readcb(struct bufferevent *bev, void *ctx){
     char message[MSG_LENGTH];
     xmlTextReaderPtr reader;
     int ret;
-    const char xml_insert_result_string[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-					    "<INSERT>success</INSERT>";
+    const char xml_insert_result_string[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT> ";
 
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);

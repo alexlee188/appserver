@@ -44,7 +44,8 @@ void db_functions_init(){
       exit(1);
     }
 
-    if (mysql_real_connect(con, "gcmdbinstance.cvricef3pcvo.us-east-1.rds.amazonaws.com", "gcm_user", "gcm_user188", 
+//    if (mysql_real_connect(con, "gcmdbinstance.cvricef3pcvo.us-east-1.rds.amazonaws.com", "gcm_user", "gcm_user188", 
+    if (mysql_real_connect(con, "localhost", "gcm_user", "gcm_user188",
           "gcm", 0, NULL, 0) == NULL) 
     {
 	finish_with_error(con);
