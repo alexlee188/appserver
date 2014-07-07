@@ -81,7 +81,7 @@ int insert_registration_to_db(char* name, char* gcm_regid){
 	strcat(buf, name);
 	strcat(buf, "' where gcm_regid = '");
 	strcat(buf, gcm_regid);
-	strcat(buf, "');");
+	strcat(buf, "';");
     	if (mysql_query(con, buf)) {      
     		finish_with_error(con);
     	}
