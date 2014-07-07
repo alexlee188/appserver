@@ -59,16 +59,37 @@ void finish_with_error(MYSQL *con)
   exit(1);        
 }
 
-void insert_registration_to_db(char* name, char* gcm_regid){
+int insert_registration_to_db(char* name, char* gcm_regid){
     char buf[4096];
-    strcpy(buf, "insert into gcm_users(name, gcm_regid) values ('");
-    strcat(buf, name);
-    strcat(buf, "','");
-    strcat(buf, gcm_regid);
-    strcat(buf, "');");
 
+    strcpy(buf, "select * from gcm_users where gcm_regid = '");
+    strcat(buf, gcm_regid);
+    strcat(buf, "';");
     if (mysql_query(con, buf)) {      
     	finish_with_error(con);
     }
 
+    if (mysql_affected_rows(con) > 0){	// gcm_redid is already in table
+	strcpy(buf, "update gcm_users set name='");
+	strcat(buf, name);
+	strcat(buf, "' where gcm_regid = '");
+	strcat(buf, gcm_regid);
+	strcat(buf, "');");
+    	if (mysql_query(con, buf)) {      
+    		finish_with_error(con);
+    	}
+	return 0; // success
+    } else {
+
+    	strcpy(buf, "insert into gcm_users(name, gcm_regid) values ('");
+   	 strcat(buf, name);
+    	strcat(buf, "','");
+    	strcat(buf, gcm_regid);
+    	strcat(buf, "');");
+    	if (mysql_query(con, buf)) {      
+    		finish_with_error(con);
+    	}
+    	return 0;  // success   
+    }
 }
+

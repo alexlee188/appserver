@@ -429,7 +429,8 @@ void readcb(struct bufferevent *bev, void *ctx){
     char message[MSG_LENGTH];
     xmlTextReaderPtr reader;
     int ret;
-    const char xml_insert_result_string[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT> ";
+    const char xml_insert_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT> ";
+   const char xml_insert_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>fail</INSERT> ";
 
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
@@ -479,10 +480,16 @@ void readcb(struct bufferevent *bev, void *ctx){
 		xmlChar * name = xmlTextReaderGetAttribute(reader, BAD_CAST "name");
 		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
 		if ((name != NULL) && (gcm_regid != NULL)){
-		insert_registration_to_db((char*) name, (char*) gcm_regid);
-		sprintf(length, "%04d", (int)strlen(xml_insert_result_string)+3);
-		bufferevent_write(bev, length, 4);
-		bufferevent_write(bev, xml_insert_result_string, strlen(xml_insert_result_string)-1);
+		if (insert_registration_to_db((char*) name, (char*) gcm_regid) == 0){
+			sprintf(length, "%04d", (int)strlen(xml_insert_result_success)+3);
+			bufferevent_write(bev, length, 4);
+			bufferevent_write(bev, xml_insert_result_success, strlen(xml_insert_result_success)-1);
+		} else {
+			sprintf(length, "%04d", (int)strlen(xml_insert_result_fail)+3);
+			bufferevent_write(bev, length, 4);
+			bufferevent_write(bev, xml_insert_result_fail, strlen(xml_insert_result_fail)-1);
+		}
+		
 		free(name);
 		free(gcm_regid);
 		}
