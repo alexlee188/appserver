@@ -59,7 +59,7 @@ void finish_with_error(MYSQL *con)
   exit(1);        
 }
 
-int insert_registration_to_db(char* name, char* gcm_regid){
+int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* phone){
     char buf[4096];
     MYSQL_RES *result;
 
@@ -79,6 +79,10 @@ int insert_registration_to_db(char* name, char* gcm_regid){
     if (mysql_fetch_row(result)){  // if not 0, gcm_regid is already in table
 	strcpy(buf, "update gcm_users set name='");
 	strcat(buf, name);
+	strcat(buf, "', email='");
+	strcat(buf, email);
+	strcat(buf, "', phone='");
+	strcat(buf, phone);
 	strcat(buf, "' where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
@@ -89,10 +93,14 @@ int insert_registration_to_db(char* name, char* gcm_regid){
 	return 0; // success
     } else {
 
-    	strcpy(buf, "insert into gcm_users(name, gcm_regid) values ('");
+    	strcpy(buf, "insert into gcm_users(name, gcm_regid, email, phone) values ('");
    	 strcat(buf, name);
     	strcat(buf, "','");
     	strcat(buf, gcm_regid);
+	strcat(buf, "','");
+	strcat(buf, email);
+	strcat(buf, "','");
+	strcat(buf, phone);
     	strcat(buf, "');");
     	if (mysql_query(con, buf)) {      
     		finish_with_error(con);

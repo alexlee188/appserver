@@ -479,8 +479,11 @@ void readcb(struct bufferevent *bev, void *ctx){
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){
 		xmlChar * name = xmlTextReaderGetAttribute(reader, BAD_CAST "name");
 		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
+		xmlChar * email = xmlTextReaderGetAttribute(reader, BAD_CAST "email");
+		xmlChar * phone = xmlTextReaderGetAttribute(reader, BAD_CAST "phone");
 		if ((name != NULL) && (gcm_regid != NULL)){
-		if (insert_registration_to_db((char*) name, (char*) gcm_regid) == 0){
+		if (insert_registration_to_db((char*) name, (char*) gcm_regid,
+			(char*) email, (char*) phone) == 0){
 			sprintf(length, "%04d", (int)strlen(xml_insert_result_success)+3);
 			bufferevent_write(bev, length, 4);
 			bufferevent_write(bev, xml_insert_result_success, strlen(xml_insert_result_success)-1);
