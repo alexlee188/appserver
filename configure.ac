@@ -145,7 +145,7 @@ fi
 if test "x${have_pthreads}" = xno; then
     AC_MSG_ERROR([
 -----------------------------------
-  The pthread library and header file required to build ghpsdr3.
+  The pthread library and header file required to build.
 -----------------------------------])
 
 fi
@@ -154,13 +154,13 @@ if test "x${have_config}" = xyes; then
     AC_CHECK_HEADERS([libconfig.h], [], [have_config=no])
 fi
 
-if test "x${have_config}" = xno; then
-    AC_MSG_ERROR([
------------------------------------
-  The libconfig8 library and header file required to build ghpsdr3.
------------------------------------])
-
-fi
+#if test "x${have_config}" = xno; then
+#    AC_MSG_ERROR([
+#-----------------------------------
+#  The libconfig8 library and header file required to build.
+#-----------------------------------])
+#
+#fi
 
 
 if test "x${have_event20}" = xyes; then
@@ -170,7 +170,7 @@ fi
 if test "x${have_event20}" = xno; then
     AC_MSG_ERROR([
 -----------------------------------
-  The libevent-2.0 library and header file required to build ghpsdr3. See README for #installation instructions.
+  The libevent-2.0 library and header file required to build. See README for #installation instructions.
 -----------------------------------])
 fi
 

@@ -27,7 +27,7 @@ CREATE TABLE `gcm_users` (
   `gcm_regid` text,
   `name` varchar(50),
   `email` varchar(255),
-  'phone' varchar(20),
+  `phone` varchar(20),
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
