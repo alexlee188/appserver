@@ -25,11 +25,12 @@ DROP TABLE IF EXISTS `gcm_users`;
 CREATE TABLE `gcm_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `gcm_regid` text,
-  `name` varchar(50) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `name` varchar(50),
+  `email` varchar(255),
+  'phone' varchar(20),
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
