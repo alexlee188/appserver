@@ -429,9 +429,9 @@ void readcb(struct bufferevent *bev, void *ctx){
     char message[MSG_LENGTH];
     xmlTextReaderPtr reader;
     int ret;
-    const char xml_insert_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT> ";
-   const char xml_insert_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>fail</INSERT> ";
-
+    const char xml_insert_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT>\0";
+    const char xml_insert_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>fail</INSERT>\0";
+    const char dummy_xml_jobs[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<JOBS></JOBS>\0";
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
     if (mem == NULL){ // not enough data to process 4 bytes of length + xml header
@@ -469,11 +469,18 @@ void readcb(struct bufferevent *bev, void *ctx){
 		type = xmlTextReaderNodeType(reader); // next node should be a #TEXT
 		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
     			buf = GetJobs();
-    			xml_string = (const char*) buf->content;
-    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
-    			bufferevent_write(bev, length, 4);
-    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
-    			xmlBufferFree(buf);
+			if (buf == NULL){ 
+	    			xml_string = dummy_xml_jobs;
+	    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
+	    			bufferevent_write(bev, length, 4);
+	    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
+			} else {
+	    			xml_string = (const char*) buf->content;
+	    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
+	    			bufferevent_write(bev, length, 4);
+	    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
+	    			xmlBufferFree(buf);
+			}
 		}
             }  // name is QUERY
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){

@@ -111,19 +111,22 @@ xmlBufferPtr GetJobs()
     if (tmp != NULL) xmlFree(tmp);
 
     if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB")) {      
-    	finish_with_error(con);
+    	finish_with_warning(con);
+	return NULL;
     }
 
     MYSQL_RES *result = mysql_store_result(con);
   
     if (result == NULL) 
     {
-      finish_with_error(con);
+      	finish_with_warning(con);
+	return NULL;
     }
 
     int num_fields = mysql_num_fields(result);
     if (num_fields != 10){
-	finish_with_error(con);
+	finish_with_warning(con);
+	return NULL;
 	}
 
     MYSQL_ROW row;

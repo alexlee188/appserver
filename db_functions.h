@@ -29,6 +29,7 @@ typedef unsigned long ulong;
 extern MYSQL *con;
 
 void db_functions_init(void);
+void finish_with_warning(MYSQL *);
 void finish_with_error(MYSQL *);
 int insert_registration_to_db(char*, char*, char*, char*);
 

@@ -59,6 +59,11 @@ void finish_with_error(MYSQL *con)
   exit(1);        
 }
 
+void finish_with_warning(MYSQL *con)
+{
+  fprintf(stderr, "%s\n", mysql_error(con));     
+}
+
 int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* phone){
     char buf[4096];
     MYSQL_RES *result;
@@ -67,13 +72,15 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
     strcat(buf, gcm_regid);
     strcat(buf, "';");
     if (mysql_query(con, buf)) {      
-    	finish_with_error(con);
+    	finish_with_warning(con);
+	return -1;
     }
 
     result = mysql_store_result(con);
     if (result == NULL) 
     {
-      finish_with_error(con);
+        finish_with_warning(con);
+	return -1;
     }
   
     if (mysql_fetch_row(result)){  // if not 0, gcm_regid is already in table
@@ -87,7 +94,8 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
     	if (mysql_query(con, buf)) {      
-    		finish_with_error(con);
+    		finish_with_warning(con);
+		return -1;
     	}
 	mysql_free_result(result);
 	return 0; // success
@@ -103,7 +111,7 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
 	strcat(buf, phone);
     	strcat(buf, "');");
     	if (mysql_query(con, buf)) {      
-    		finish_with_error(con);
+    		finish_with_warning(con);
     	}
     	return 0;  // success   
     }
