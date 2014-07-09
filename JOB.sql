@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.5.37, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: gcm
+-- Host: gcmdbinstance.cegfhjvyp8lf.ap-southeast-1.rds.amazonaws.com    Database: gcm
 -- ------------------------------------------------------
--- Server version	5.5.37-0ubuntu0.14.04.1
+-- Server version	5.6.17-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -33,7 +33,7 @@ CREATE TABLE `JOB` (
   `JOB_DURATION` double DEFAULT '1',
   `JOB_STATUS` varchar(10) DEFAULT 'open',
   PRIMARY KEY (`JOB_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `JOB` (
 
 LOCK TABLES `JOB` WRITE;
 /*!40000 ALTER TABLE `JOB` DISABLE KEYS */;
-INSERT INTO `JOB` VALUES (1,1,'Change of leg dressing','wound care',NULL,NULL,'2014-11-10 18:00:00',2.5,'open'),(2,2,'General','Geriatrics',NULL,NULL,'2014-09-30 12:00:00',1,'open'),(3,1,'General',NULL,NULL,NULL,'2014-10-10 18:00:00',1.5,'open'),(4,3,'Bathing and Turning','Geriatrics',NULL,NULL,'2014-09-28 12:00:00',1,'open');
+INSERT INTO `JOB` VALUES (1,1,'Change of leg dressing','wound care',NULL,NULL,'2014-11-10 18:00:00',2.5,'open'),(2,2,'General','Geriatrics',NULL,NULL,'2014-09-30 12:00:00',1,'open'),(3,1,'General',NULL,NULL,NULL,'2014-10-10 18:00:00',1.5,'open'),(4,3,'Bathing and Turning','Geriatrics',NULL,NULL,'2014-09-28 12:00:00',1,'open'),(5,3,'Ryles tube feeding',NULL,NULL,NULL,'2014-11-13 14:00:00',1,'open'),(6,3,'Ryles tube feeding',NULL,NULL,NULL,'2014-11-15 18:00:00',1,'open');
 /*!40000 ALTER TABLE `JOB` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -55,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-07-03 19:21:51
+-- Dump completed on 2014-07-09 17:39:31
