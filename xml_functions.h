@@ -24,6 +24,6 @@
 #include <libxml/xmlreader.h>
 
 void xml_functions_init(void);
-xmlBufferPtr GetJobs(void);
+xmlBufferPtr GetJobs(char*);
 
 #endif

@@ -39,7 +39,6 @@
 //#define MY_ENCODING "ISO-8859-1"
 #define MY_ENCODING "UTF-8"
 
-xmlBufferPtr GetJobs(void);
 xmlChar *ConvertInput(const char *in, const char *encoding);
 
 xmlTextWriterPtr writer;
@@ -54,7 +53,7 @@ void xml_functions_init(){
 
 }
 
-xmlBufferPtr GetJobs()
+xmlBufferPtr GetJobs(char* gcm_regid)
 {
     int rc, i;
 

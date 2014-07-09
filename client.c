@@ -464,11 +464,14 @@ void readcb(struct bufferevent *bev, void *ctx){
             name = xmlTextReaderConstName(reader);
 	    type = xmlTextReaderNodeType(reader);
 	    if ((type == 1) && (name != NULL) && (strncmp((char*)name, "QUERY", 5) == 0)){
+		// check whether the QUERY comes with a gcm_regid attribute.  If it does
+		// it is a GetJobs of jobs assigned to the particular user
+		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
 		ret = xmlTextReaderRead(reader);  
 		value = xmlTextReaderConstValue(reader);
 		type = xmlTextReaderNodeType(reader); // next node should be a #TEXT
 		if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetJobs", 7) == 0)){
-    			buf = GetJobs();
+    			buf = GetJobs((char*)gcm_regid);
 			if (buf == NULL){ 
 	    			xml_string = dummy_xml_jobs;
 	    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
@@ -482,6 +485,7 @@ void readcb(struct bufferevent *bev, void *ctx){
 	    			xmlBufferFree(buf);
 			}
 		}
+		if (gcm_regid != NULL) free(gcm_regid);
             }  // name is QUERY
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){
 		xmlChar * name = xmlTextReaderGetAttribute(reader, BAD_CAST "name");
@@ -500,8 +504,10 @@ void readcb(struct bufferevent *bev, void *ctx){
 			bufferevent_write(bev, xml_insert_result_fail, strlen(xml_insert_result_fail)-1);
 		}
 		
-		free(name);
-		free(gcm_regid);
+		if (name != NULL) free(name);
+		if (gcm_regid != NULL) free(gcm_regid);
+		if (email != NULL) free(email);
+		if (phone != NULL) free(phone);
 		}
 	    };
             ret = xmlTextReaderRead(reader);
