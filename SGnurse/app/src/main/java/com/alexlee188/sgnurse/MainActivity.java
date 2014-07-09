@@ -64,15 +64,12 @@ public class MainActivity extends ActionBarActivity implements
 
     Boolean isPaused;
     GoogleCloudMessaging gcm;
-    Context context;
     String regId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-        context = getApplicationContext();  // needed to get application version
 
         regId = registerGCM();
 
@@ -655,21 +652,12 @@ public class MainActivity extends ActionBarActivity implements
 
     public String registerGCM() {
         gcm = GoogleCloudMessaging.getInstance(this);
-        regId = getRegistrationId(context);
+        regId = getRegistrationId(getApplicationContext());
 
         if (TextUtils.isEmpty(regId)) {
-
             registerInBackground();
+        };
 
-            Log.d("RegisterActivity",
-                    "registerGCM - successfully registered with GCM server - regId: "
-                            + regId
-            );
-        } else {
-            Toast.makeText(getApplicationContext(),
-                    "RegId already available. RegId: " + regId,
-                    Toast.LENGTH_LONG).show();
-        }
         return regId;
     }
 
@@ -707,14 +695,14 @@ public class MainActivity extends ActionBarActivity implements
                 String msg = "";
                 try {
                     if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(context);
+                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
                     }
                     regId = gcm.register(Config.GOOGLE_PROJECT_ID);
                     Log.d("RegisterActivity", "registerInBackground - regId: "
                             + regId);
                     msg = "Device registered, registration ID=" + regId;
 
-                    storeRegistrationId(context, regId);
+                    storeRegistrationId(getApplicationContext(), regId);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                     Log.d("RegisterActivity", "Error: " + msg);
