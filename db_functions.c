@@ -36,6 +36,8 @@
 MYSQL *con;
 
 void db_functions_init(){
+    my_bool reconnect_option = 1;
+
     con = mysql_init(NULL);
 
     if (con == NULL) 
@@ -43,6 +45,11 @@ void db_functions_init(){
       fprintf(stderr, "%s\n", mysql_error(con));
       exit(1);
     }
+
+    if (mysql_options(con, MYSQL_OPT_RECONNECT, &reconnect_option)) 
+    {
+	finish_with_error(con);
+    } 
 
     if (mysql_real_connect(con, "gcmdbinstance.cegfhjvyp8lf.ap-southeast-1.rds.amazonaws.com", "gcm_user", "gcm_user188", 
           "gcm", 0, NULL, 0) == NULL) 
