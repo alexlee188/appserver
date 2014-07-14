@@ -110,7 +110,7 @@ xmlBufferPtr GetJobs(char* gcm_regid)
     if (tmp != NULL) xmlFree(tmp);
 
     if (gcm_regid == NULL){  // selecting all jobs
-    	if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB")) {
+    	if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB order by ADDR_POSTCODE, JOB_START_TIME;")) {
     		finish_with_warning(con);
 		return NULL;
 		}
@@ -118,7 +118,7 @@ xmlBufferPtr GetJobs(char* gcm_regid)
     	char buf[4096];
     	strcpy(buf, "select JOB_STATUS, JOB_ID, JOB.CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from JOB join (CUSTOMER, gcm_users) on (JOB.CUSTOMER_ID = CUSTOMER.CUSTOMER_ID and JOB.JOB_ASSIGNED_ID = gcm_users.id) where gcm_regid = '");
     	strcat(buf, gcm_regid);
-   	strcat(buf, "';");
+   	strcat(buf, "' order by ADDR_POSTCODE, JOB_START_TIME;");
 	if (mysql_query(con, buf)) {      
     		finish_with_warning(con);
 		return NULL;
