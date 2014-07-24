@@ -1,6 +1,6 @@
 <html>
 <head>
- <title>GCM Demo application</title>
+ <title>Send Message to all users</title>
 </head>
 <body>
  <?php
@@ -60,8 +60,10 @@
     }
  ?>
  <form method="post" action="gcm_msg_all.php">
+  <font size="5">
   <label>Insert Message: </label><input type="text" name="message" />
   <input type="submit" name="submit" value="Send" />
+  </font>
  </form>
 </body>
 </html>
