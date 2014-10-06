@@ -109,8 +109,8 @@ xmlBufferPtr GetJobs(char* gcm_regid)
     }
     if (tmp != NULL) xmlFree(tmp);
 
-    if (gcm_regid == NULL){  // selecting all jobs
-    	if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB order by JOB_START_TIME, ADDR_POSTCODE;")) {
+    if (gcm_regid == NULL){  // selecting all 'open' jobs
+    	if (mysql_query(con, "select JOB_STATUS, JOB_ID, CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from CUSTOMER natural join JOB where JOB_STATUS = 'open' order by JOB_START_TIME, ADDR_POSTCODE;")) {
     		finish_with_warning(con);
 		return NULL;
 		}
