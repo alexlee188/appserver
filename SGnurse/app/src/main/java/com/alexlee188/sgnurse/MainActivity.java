@@ -73,8 +73,8 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-        list_values.add(new job("", "", "Waiting for server update..."));
-        assigned_values.add(new job("", "", "Waiing for server update..."));
+        list_values.add(new job("","", "", "Waiting for server update..."));
+        assigned_values.add(new job("","", "", "Waiing for server update..."));
 
         regId = registerGCM();
 
@@ -487,6 +487,7 @@ public class MainActivity extends ActionBarActivity implements
 
             XmlPullParserFactory factory;
             StringBuilder s = null;
+            String job_id = "";
             String post_district = "";
             String job_date_time = "";
 			try {
@@ -509,6 +510,12 @@ public class MainActivity extends ActionBarActivity implements
                               post_district = post_district_from_postcode(dist, post_code);
 		        		  }
 		        	  }
+                      else if (xpp.getName().equalsIgnoreCase("JOB_ID")){
+                          eventType = xpp.next();
+                          if(eventType == XmlPullParser.TEXT){
+                               job_id = xpp.getText();
+                          }
+                      }
 		        	  else if (xpp.getName().equalsIgnoreCase("JOB_DESC")){
 		        		  eventType = xpp.next();
 		        		  if(eventType == XmlPullParser.TEXT) s.append(xpp.getText());
@@ -536,7 +543,8 @@ public class MainActivity extends ActionBarActivity implements
 		          } else if(eventType == XmlPullParser.TEXT) {
 		          } else if(eventType == XmlPullParser.END_TAG) {
 		        	  if (xpp.getName().equalsIgnoreCase("JOB")){
-		        		  list_values.add(new job(job_date_time, post_district, s.toString()));
+		        		  list_values.add(new job(job_id, job_date_time, post_district, s.toString()));
+                          job_id = "";
                           job_date_time = "";
                           post_district = "";
 		        		  s = new StringBuilder();
@@ -585,6 +593,7 @@ public class MainActivity extends ActionBarActivity implements
 
             XmlPullParserFactory factory;
             StringBuilder s = null;
+            String job_id = "";
             String post_district = "";
             String job_date_time = "";
             try {
@@ -598,6 +607,12 @@ public class MainActivity extends ActionBarActivity implements
                     } else if(eventType == XmlPullParser.START_TAG) {
                         if (xpp.getName().equalsIgnoreCase("JOB")){
                             s = new StringBuilder();
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("JOB_ID")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT){
+                                job_id = xpp.getText();
+                            }
                         }
                         else if (xpp.getName().equalsIgnoreCase("ADDR_POSTCODE")){
                             eventType = xpp.next();
@@ -634,7 +649,8 @@ public class MainActivity extends ActionBarActivity implements
                     } else if(eventType == XmlPullParser.TEXT) {
                     } else if(eventType == XmlPullParser.END_TAG) {
                         if (xpp.getName().equalsIgnoreCase("JOB")){
-                            assigned_values.add(new job(job_date_time, post_district, s.toString()));
+                            assigned_values.add(new job(job_id, job_date_time, post_district, s.toString()));
+                            job_id = "";
                             job_date_time = "";
                             post_district = "";
                             s = new StringBuilder();
