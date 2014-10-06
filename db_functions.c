@@ -70,6 +70,19 @@ void finish_with_warning(MYSQL *con)
   fprintf(stderr, "%s\n", mysql_error(con));     
 }
 
+int assign_job_to_user(char* job_id, char* gcm_regid){
+	char buf[4096];
+
+	strcpy(buf, "update JOB set JOB_STATUS = 'requested', JOB_ASSIGNED_ID = (select id from gcm_users where gcm_regid = '");
+	strcat(buf, gcm_regid);
+	strcat(buf, "') where JOB_ID = job_id;");
+    	if (mysql_query(con, buf)) {      
+    		finish_with_warning(con);
+		return -1;
+    	}
+	return 0;  // success
+}
+
 int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* phone){
     char buf[4096];
     MYSQL_RES *result;

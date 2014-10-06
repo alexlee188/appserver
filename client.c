@@ -431,6 +431,8 @@ void readcb(struct bufferevent *bev, void *ctx){
     int ret;
     const char xml_insert_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>success</INSERT>\0";
     const char xml_insert_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<INSERT>fail</INSERT>\0";
+    const char xml_assign_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<ASSIGN>success</ASSIGN>\0";
+    const char xml_assign_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<ASSIGN>fail</ASSIGN>\0";
     const char dummy_xml_jobs[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"\n<JOBS></JOBS>\0";
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
@@ -486,7 +488,7 @@ void readcb(struct bufferevent *bev, void *ctx){
 			}
 		}
 		if (gcm_regid != NULL) free(gcm_regid);
-            }  // name is QUERY
+            }  // END QUERY
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){
 		xmlChar * name = xmlTextReaderGetAttribute(reader, BAD_CAST "name");
 		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
@@ -509,7 +511,25 @@ void readcb(struct bufferevent *bev, void *ctx){
 		if (email != NULL) free(email);
 		if (phone != NULL) free(phone);
 		}
-	    };
+	    } // END INSERT
+	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "ASSIGN", 6) == 0)){
+		xmlChar * job_id = xmlTextReaderGetAttribute(reader, BAD_CAST "job_id");
+		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
+		if ((job_id != NULL) && (gcm_regid != NULL)){
+		if (assign_job_to_user((char*) job_id, (char*) gcm_regid) == 0){
+			sprintf(length, "%04d", (int)strlen(xml_assign_result_success)+3);
+			bufferevent_write(bev, length, 4);
+			bufferevent_write(bev, xml_assign_result_success, strlen(xml_assign_result_success)-1);
+		} else {
+			sprintf(length, "%04d", (int)strlen(xml_assign_result_fail)+3);
+			bufferevent_write(bev, length, 4);
+			bufferevent_write(bev, xml_assign_result_fail, strlen(xml_assign_result_fail)-1);
+		}
+		
+		if (job_id != NULL) free(job_id);
+		if (gcm_regid != NULL) free(gcm_regid);
+		}
+	    }; // END ASSIGN
             ret = xmlTextReaderRead(reader);
         } // ret == 1
         xmlFreeTextReader(reader);

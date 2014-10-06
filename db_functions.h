@@ -32,5 +32,6 @@ void db_functions_init(void);
 void finish_with_warning(MYSQL *);
 void finish_with_error(MYSQL *);
 int insert_registration_to_db(char*, char*, char*, char*);
+int assign_job_to_user(char*, char*);
 
 #endif
