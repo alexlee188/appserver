@@ -310,8 +310,77 @@ public class MainActivity extends ActionBarActivity implements
 
                         // Show Alert
                         Toast.makeText(getActivity().getBaseContext(),
-                                "Position :" + itemPosition + "  ListItem : " + itemValue.get_job_details(), Toast.LENGTH_LONG)
+                                "Assigning job (" + itemValue.get_job_date_time() + ") " +
+                                        itemValue.get_job_details(), Toast.LENGTH_LONG)
                                 .show();
+
+                        SharedPreferences prefs =
+                                getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                        Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("JOB_ID", itemValue.get_job_id() );
+                        editor.commit();
+
+                        AsyncTask <String, String, Void> AssignJobTask = new AsyncTask<String,String,Void>() {
+                            @Override
+                            protected Void doInBackground(String... message) {
+                                final SharedPreferences prefs =
+                                        getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                                Context.MODE_PRIVATE);
+                                String regId = prefs.getString("REG_ID", "");
+;                               String job_id = prefs.getString("JOB_ID", "");
+                                String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                        "<ASSIGN gcm_regid=\"" + regId +
+                                        "\" job_id=\"" + job_id + "\"></ASSIGN>";
+                                String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
+                                //we create a TCPClient object and
+                                TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
+                                    @Override
+                                    //here the messageReceived method is implemented
+                                    public void messageReceived(String message) {
+                                        //this method calls the onProgressUpdate
+                                        publishProgress(message);
+                                    }
+                                }, xml);
+                                mTcpClient.run();
+                                return null;
+                            }
+
+                            @Override
+                            protected void onProgressUpdate(String... values) {
+                                super.onProgressUpdate(values);
+
+                                ArrayList<String> list = new ArrayList<String>();
+                                XmlPullParserFactory factory;
+                                try {
+                                    factory = XmlPullParserFactory.newInstance();
+                                    factory.setNamespaceAware(true);
+                                    XmlPullParser xpp = factory.newPullParser();
+                                    xpp.setInput(new StringReader(values[0]));
+                                    int eventType = xpp.getEventType();
+                                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                                        if(eventType == XmlPullParser.START_DOCUMENT) {
+                                        } else if(eventType == XmlPullParser.START_TAG) {
+                                            if (xpp.getName().equalsIgnoreCase("ASSIGN")){
+                                            }
+                                        } else if(eventType == XmlPullParser.TEXT) {
+                                        } else if(eventType == XmlPullParser.END_TAG) {
+                                            if (xpp.getName().equalsIgnoreCase("ASSIGN")){
+                                            }
+                                        }
+                                        eventType = xpp.next();
+                                    }
+                                } catch (XmlPullParserException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
+                        };	// end AssignJobTask
+
+                        AssignJobTask.execute();
 
                     }
 
