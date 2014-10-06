@@ -306,6 +306,26 @@ public class MainActivity extends ActionBarActivity implements
                         int itemPosition = position;
 
                         // ListView Clicked item value
+                        job itemValue = (job) listView.getItemAtPosition(position);
+
+                        // Show Alert
+                        Toast.makeText(getActivity().getBaseContext(),
+                                "Selected job (" + itemValue.get_job_date_time() + ") " +
+                                        itemValue.get_job_details(), Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                // ListView Item Long Click Listener
+                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+
+                        // ListView Clicked item index
+                        int itemPosition = position;
+
+                        // ListView Clicked item value
                         job itemValue = (job)listView.getItemAtPosition(position);
 
                         // Show Alert
@@ -328,7 +348,7 @@ public class MainActivity extends ActionBarActivity implements
                                         getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
                                                 Context.MODE_PRIVATE);
                                 String regId = prefs.getString("REG_ID", "");
-;                               String job_id = prefs.getString("JOB_ID", "");
+                                ;                               String job_id = prefs.getString("JOB_ID", "");
                                 String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                         "<ASSIGN gcm_regid=\"" + regId +
                                         "\" job_id=\"" + job_id + "\"></ASSIGN>";
@@ -381,7 +401,7 @@ public class MainActivity extends ActionBarActivity implements
                         };	// end AssignJobTask
 
                         AssignJobTask.execute();
-
+                        return true;
                     }
 
                 });
