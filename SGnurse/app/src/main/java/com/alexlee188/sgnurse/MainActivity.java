@@ -311,7 +311,8 @@ public class MainActivity extends ActionBarActivity implements
                         // Show Alert
                         Toast.makeText(getActivity().getBaseContext(),
                                 "Selected job (" + itemValue.get_job_date_time() + ") " +
-                                        itemValue.get_job_details(), Toast.LENGTH_LONG)
+                                        itemValue.get_job_details() +
+                                " - LONG PRESS JOB to request assignment", Toast.LENGTH_LONG)
                                 .show();
                     }
                 });
