@@ -72,6 +72,34 @@ void finish_with_warning(MYSQL *con)
 
 int assign_job_to_user(char* job_id, char* gcm_regid){
 	char buf[4096];
+	MYSQL_RES *result;
+	MYSQL_ROW row;
+
+	// first check that this gcm_user has a verified status
+	strcpy(buf, "select verfied from gcm_users where gcm_regid = '");
+	strcat(buf, gcm_regid);
+	strcat(buf, "';");
+
+	if (mysql_query(con, buf)) {    
+            finish_with_warning(con);
+	    return -1;
+	}
+        result = mysql_store_result(con);
+        if (result == NULL) 
+        {
+            finish_with_warning(con);
+	    return -1;
+        }
+  
+    	row = mysql_fetch_row(result);
+	if (strncmp(row[0], "yes", 3) != 0){
+	    mysql_free_result(result);
+	    finish_with_warning(con);
+	    return -1;
+	}
+	mysql_free_result(result);
+
+	// verified is "yes"
 
 	strcpy(buf, "update JOB set JOB_STATUS = 'requested', JOB_ASSIGNED_ID = (select id from gcm_users where gcm_regid = '");
 	strcat(buf, gcm_regid);
