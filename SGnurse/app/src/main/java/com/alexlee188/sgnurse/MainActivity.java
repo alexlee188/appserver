@@ -345,6 +345,28 @@ public class MainActivity extends ActionBarActivity implements
                         editor.commit();
 
                         AsyncTask <String, String, Void> AssignJobTask = new AsyncTask<String,String,Void>() {
+                            private AlertDialog.Builder adb;
+                            private AlertDialog ad;
+
+                            @Override
+                            protected void onPreExecute(){
+                                super.onPreExecute();
+                                adb = new AlertDialog.Builder(getActivity());
+                                adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                adb.setTitle("Assign Job Request");
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void result){
+                                super.onPostExecute(result);
+                                ad = adb.create();
+                                ad.show();
+                            }
+
                             @Override
                             protected Void doInBackground(String... message) {
                                 final SharedPreferences prefs =
@@ -388,7 +410,9 @@ public class MainActivity extends ActionBarActivity implements
                                                 eventType = xpp.next();
                                                 if (eventType == XmlPullParser.TEXT) {
                                                     if (xpp.getText().equalsIgnoreCase("fail")) {
+                                                        adb.setMessage("FAIL");
                                                     } else if (xpp.getText().equalsIgnoreCase("success")) {
+                                                        adb.setMessage("SUCCESS");
                                                     }
                                                 }
                                             }
