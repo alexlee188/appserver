@@ -434,6 +434,7 @@ void readcb(struct bufferevent *bev, void *ctx){
     const char xml_assign_result_success[] = "<?xml version=\"1.0\" encoding=\"UTF-8\">\n<ASSIGN>success</ASSIGN>\0";
     const char xml_assign_result_fail[] = "<?xml version=\"1.0\" encoding=\"UTF-8\">\n<ASSIGN>fail</ASSIGN>\0";
     const char dummy_xml_jobs[] = "<?xml version=\"1.0\" encoding=\"UTF-8\">\n<JOBS></JOBS>\0";
+
     inbuf = bufferevent_get_input(bev);
     mem = evbuffer_pullup(inbuf, XML_HEADER_SIZE);
     if (mem == NULL){ // not enough data to process 4 bytes of length + xml header
