@@ -6,6 +6,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.v7.app.ActionBarActivity;
@@ -312,7 +314,7 @@ public class MainActivity extends ActionBarActivity implements
                         Toast.makeText(getActivity().getBaseContext(),
                                 "Selected job (" + itemValue.get_job_date_time() + ") " +
                                         itemValue.get_job_details() +
-                                " - LONG PRESS JOB to request assignment", Toast.LENGTH_LONG)
+                                " - LONG PRESS job to request assignment", Toast.LENGTH_LONG)
                                 .show();
                     }
                 });
@@ -382,9 +384,14 @@ public class MainActivity extends ActionBarActivity implements
                                     while (eventType != XmlPullParser.END_DOCUMENT) {
                                         if(eventType == XmlPullParser.START_DOCUMENT) {
                                         } else if(eventType == XmlPullParser.START_TAG) {
-                                            if (xpp.getName().equalsIgnoreCase("ASSIGN")){
+                                            if (xpp.getName().equalsIgnoreCase("ASSIGN")) {
+                                                eventType = xpp.next();
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    if (xpp.getText().equalsIgnoreCase("fail")) {
+                                                    } else if (xpp.getText().equalsIgnoreCase("success")) {
+                                                    }
+                                                }
                                             }
-                                        } else if(eventType == XmlPullParser.TEXT) {
                                         } else if(eventType == XmlPullParser.END_TAG) {
                                             if (xpp.getName().equalsIgnoreCase("ASSIGN")){
                                             }
