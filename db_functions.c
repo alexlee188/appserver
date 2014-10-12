@@ -76,7 +76,7 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
 	MYSQL_ROW row;
 
 	// first check that this gcm_user has a verified status
-	strcpy(buf, "select verfied from gcm_users where gcm_regid = '");
+	strcpy(buf, "select verified from gcm_users where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
 
