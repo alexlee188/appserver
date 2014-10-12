@@ -394,8 +394,6 @@ public class MainActivity extends ActionBarActivity implements
                             @Override
                             protected void onProgressUpdate(String... values) {
                                 super.onProgressUpdate(values);
-
-                                ArrayList<String> list = new ArrayList<String>();
                                 XmlPullParserFactory factory;
                                 try {
                                     factory = XmlPullParserFactory.newInstance();
@@ -410,9 +408,12 @@ public class MainActivity extends ActionBarActivity implements
                                                 eventType = xpp.next();
                                                 if (eventType == XmlPullParser.TEXT) {
                                                     if (xpp.getText().equalsIgnoreCase("fail")) {
-                                                        adb.setMessage("FAIL");
+                                                        adb.setMessage("FAIL - Request to assign job failed.  Make sure you have " +
+                                                        "verified your qualifications and credentials.  Call SGnurse admin at" +
+                                                        " 98368954.");
                                                     } else if (xpp.getText().equalsIgnoreCase("success")) {
-                                                        adb.setMessage("SUCCESS");
+                                                        adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
+                                                        "Make sure your info in MY DETAILS are correct.");
                                                     }
                                                 }
                                             }
