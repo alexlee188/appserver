@@ -413,7 +413,7 @@ public class MainActivity extends ActionBarActivity implements
                                                         " 98368954.");
                                                     } else if (xpp.getText().equalsIgnoreCase("success")) {
                                                         adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
-                                                        "Make sure your info in MY DETAILS are correct.");
+                                                        "Make sure your info in MY DETAILS is correct.");
                                                     }
                                                 }
                                             }
