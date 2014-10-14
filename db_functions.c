@@ -110,6 +110,12 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
     		finish_with_warning(con);
 		return -1;
     	}
+
+        if (mysql_affected_rows(con) != 1) 
+        {
+            finish_with_warning(con);
+	    return -1;
+        }
 	return 0;  // success
 }
 
