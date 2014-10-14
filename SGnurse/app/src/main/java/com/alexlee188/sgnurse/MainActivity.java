@@ -408,7 +408,9 @@ public class MainActivity extends ActionBarActivity implements
                                                 eventType = xpp.next();
                                                 if (eventType == XmlPullParser.TEXT) {
                                                     if (xpp.getText().equalsIgnoreCase("fail")) {
-                                                        adb.setMessage("FAIL - Request to assign job failed.  Make sure you have " +
+                                                        adb.setMessage("FAIL - Request to assign job failed. " +
+                                                        "This job may have already been assigned to another user. " +
+                                                        "Slide to another tab and back to refresh job list.  Also make sure you have " +
                                                         "verified your qualifications and credentials.  Call SGnurse admin at" +
                                                         " 98368954.");
                                                     } else if (xpp.getText().equalsIgnoreCase("success")) {
