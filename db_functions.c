@@ -105,7 +105,7 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
 	strcat(buf, gcm_regid);
 	strcat(buf, "') where JOB_ID ='");
 	strcat(buf, job_id);
-	strcat(buf, "';");
+	strcat(buf, "' and JOB_STATUS = 'open';");
     	if (mysql_query(con, buf)) {      
     		finish_with_warning(con);
 		return -1;
