@@ -373,7 +373,7 @@ public class MainActivity extends ActionBarActivity implements
                                         getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
                                                 Context.MODE_PRIVATE);
                                 String regId = prefs.getString("REG_ID", "");
-                                ;                               String job_id = prefs.getString("JOB_ID", "");
+                                String job_id = prefs.getString("JOB_ID", "");
                                 String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                         "<ASSIGN gcm_regid=\"" + regId +
                                         "\" job_id=\"" + job_id + "\"></ASSIGN>";
