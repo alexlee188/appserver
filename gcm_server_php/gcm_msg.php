@@ -112,8 +112,6 @@
                             <form id="<?php echo $row["id"] ?>" name="" method="post" onsubmit="return sendPushNotification('<?php echo $row["id"] ?>')">
                                 <label>Name: </label> <span><?php echo $row["name"] ?></span>
                                 <div class="clear"></div>
-                                <label>Email:</label> <span><?php echo $row["email"] ?></span>
-                                <div class="clear"></div>
                                 <div class="send_container">                                
                                     <textarea rows="3" name="message" cols="25" class="txt_message" placeholder="Type message here"></textarea>
                                     <input type="hidden" name="regId" value="<?php echo $row["gcm_regid"] ?>"/>
