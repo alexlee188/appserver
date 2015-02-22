@@ -72,6 +72,7 @@ public class GCMNotificationIntentService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         mBuilder.setLights(Color.BLUE, 500, 500);
+        mBuilder.setAutoCancel(true);
         Notification mNotification = mBuilder.build();
         mNotification.sound =  RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
