@@ -76,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements
 		setContentView(R.layout.activity_main);
 
         list_values.add(new job("","", "", "Waiting for server update..."));
-        assigned_values.add(new job("","", "", "Waiing for server update..."));
+        assigned_values.add(new job("","", "", "Waiting for server update..."));
 
         regId = registerGCM();
 
