@@ -427,7 +427,6 @@ public class MainActivity extends ActionBarActivity implements
                                 }
                             }
                         };	// end AssignJobTask
-
                         AssignJobTask.execute();
                         return true;
                     }
