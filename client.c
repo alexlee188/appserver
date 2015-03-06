@@ -487,7 +487,15 @@ void readcb(struct bufferevent *bev, void *ctx){
 	    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
 	    			xmlBufferFree(buf);
 			}
-		}
+		} else if ((type == 3) && (value != NULL) && (strncmp((char*)value, "GetAccount", 10) == 0)){
+		// getting the account balance.  The QUERY should come with a gcm_reqid
+			buf = GetAccount((char*)gcm_regid);
+    			xml_string = (const char*) buf->content;
+    			sprintf(length, "%04d", (int)strlen(xml_string)+3);
+    			bufferevent_write(bev, length, 4);
+    			bufferevent_write(bev, xml_string, strlen(xml_string)-1);
+    			xmlBufferFree(buf);
+		};
 		if (gcm_regid != NULL) free(gcm_regid);
             }  // END QUERY
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "INSERT", 6) == 0)){

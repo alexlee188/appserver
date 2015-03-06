@@ -25,5 +25,6 @@
 
 void xml_functions_init(void);
 xmlBufferPtr GetJobs(char*);
+xmlBufferPtr GetAccount(char*);
 
 #endif

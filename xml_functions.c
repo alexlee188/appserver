@@ -273,6 +273,122 @@ xmlBufferPtr GetJobs(char* gcm_regid)
     return buf;
 }
 
+xmlBufferPtr GetAccount(char* gcm_regid)
+{
+    int rc;
+
+    xmlBufferPtr buf;
+    xmlChar *tmp;
+
+    /* Create a new XML buffer, to which the XML document will be
+     * written */
+    buf = xmlBufferCreate();
+    if (buf == NULL) {
+        printf("GetAccount: Error creating the xml buffer\n");
+        return NULL;
+    }
+
+    /* Create a new XmlWriter for memory, with no compression.
+     * Remark: there is no compression for this kind of xmlTextWriter */
+    writer = xmlNewTextWriterMemory(buf, 0);
+    if (writer == NULL) {
+        printf("GetAccount: Error creating the xml writer\n");
+        return NULL;
+    }
+
+    /* Start the document with the xml default for the version,
+     * encoding ISO 8859-1 and the default for the standalone
+     * declaration. */
+    rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
+    if (rc < 0) {
+        printf
+            ("GetAccount: Error at xmlTextWriterStartDocument\n");
+        return NULL;
+    }
+
+    /* Start an element named "ACCOUNT". Since thist is the first
+     * element, this will be the root element of the document. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ACCOUNT");
+    if (rc < 0) {
+        printf
+            ("GetAccount: Error at xmlTextWriterStartElement\n");
+        return NULL;
+    }
+
+
+    if (gcm_regid == NULL){  // if no gcm_regid error
+	return NULL;
+    } else {	// find account balance by gcm_regid
+    	char buf[4096];
+    	strcpy(buf, "select balance from gcm_users where gcm_regid = '");
+    	strcat(buf, gcm_regid);
+   	strcat(buf, "';");
+	if (mysql_query(con, buf)) {      
+    		finish_with_warning(con);
+		return NULL;
+    		}
+    }
+
+    MYSQL_RES *result = mysql_store_result(con);
+  
+    if (result == NULL) 
+    {
+      	finish_with_warning(con);
+	return NULL;
+    }
+
+    int num_fields = mysql_num_fields(result);
+    if (num_fields != 1){
+	finish_with_warning(con);
+	return NULL;
+	}
+
+    MYSQL_ROW row;
+  
+    while ((row = mysql_fetch_row(result))) 
+    { 
+
+      /* Add an attribute with name "BALANCE" and value to ACCOUNT. */
+      tmp = ConvertInput(row[0]?row[0]:"0.00", MY_ENCODING);
+      rc = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "BALANCE",
+                                     "%s", tmp);
+      if (rc < 0) {
+        printf
+            ("GetAccount: Error at xmlTextWriterWriteFormatAttribute\n");
+        return 0;
+      }
+
+      if (tmp != NULL) xmlFree(tmp);
+
+
+    rc = xmlTextWriterEndElement(writer);
+
+    if (rc < 0) {
+        printf
+            ("GetAccount: Error at xmlTextWriterEndElement\n");
+        return 0;
+	}
+
+    } // end while database row
+
+    mysql_free_result(result);
+
+
+    /* Here we could close the elements using the
+     * function xmlTextWriterEndElement, but since we do not want to
+     * write any other elements, we simply call xmlTextWriterEndDocument,
+     * which will do all the work. */
+    rc = xmlTextWriterEndDocument(writer);
+    if (rc < 0) {
+        printf("GetAccount: Error at xmlTextWriterEndDocument\n");
+        return NULL;
+    }
+
+    xmlFreeTextWriter(writer);
+
+    return buf;
+}
+
 /**
  * ConvertInput:
  * @in: string in a given encoding
