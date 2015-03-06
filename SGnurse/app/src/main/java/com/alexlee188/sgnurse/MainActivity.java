@@ -107,6 +107,7 @@ public class MainActivity extends ActionBarActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
+        new GetAccountTask().execute("");
 	}
 
     @Override
@@ -574,13 +575,15 @@ public class MainActivity extends ActionBarActivity implements
                 View rootView = inflater.inflate(R.layout.fragment_account, container,
                         false);
                 final TextView balance = (TextView) rootView.findViewById(R.id.accountBalance);
+                final SharedPreferences prefs =
+                        getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                Context.MODE_PRIVATE);
+                String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
+                balance.setText(bal);
 
                 Button button = (Button) rootView.findViewById(R.id.accountUpdate);
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                            final SharedPreferences prefs =
-                                    getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
-                                            Context.MODE_PRIVATE);
                             String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
                             balance.setText(bal);
                     } // end onClick
@@ -818,7 +821,7 @@ public class MainActivity extends ActionBarActivity implements
                     MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
             String regId = prefs.getString("REG_ID", "");
             String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<QUERY gcm_regid=\"" + regId + "\">getAccount</QUERY>";
+                    "<QUERY gcm_regid=\"" + regId + "\">GetAccount</QUERY>";
             String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
             //we create a TCPClient object and
             TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
