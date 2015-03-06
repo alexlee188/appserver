@@ -152,7 +152,10 @@ public class MainActivity extends ActionBarActivity implements
             new GetJobsTask().execute("");
         } else if (tab.getPosition()== 1){
             new GetAssignedJobsTask().execute("");
+        } else if (tab.getPosition()== 3) {
+            new GetAccountTask().execute("");
         }
+
 	}
 
 	@Override
@@ -231,6 +234,8 @@ public class MainActivity extends ActionBarActivity implements
 	        if (fragment.getArguments().getInt(ARG_SECTION_NUMBER) == 1){
 	            return POSITION_NONE;
 	        } else if (fragment.getArguments().getInt(ARG_SECTION_NUMBER) == 2){
+                return POSITION_NONE;
+            } else if (fragment.getArguments().getInt(ARG_SECTION_NUMBER) == 4){
                 return POSITION_NONE;
             }
 	        else return POSITION_UNCHANGED;
@@ -565,6 +570,22 @@ public class MainActivity extends ActionBarActivity implements
                     } // end onClick
                 });
                 return rootView;
+            } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 4){
+                View rootView = inflater.inflate(R.layout.fragment_account, container,
+                        false);
+                final TextView balance = (TextView) rootView.findViewById(R.id.accountBalance);
+
+                Button button = (Button) rootView.findViewById(R.id.accountUpdate);
+                button.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                            final SharedPreferences prefs =
+                                    getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                            Context.MODE_PRIVATE);
+                            String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
+                            balance.setText(bal);
+                    } // end onClick
+                });
+                return rootView;
 			} else {
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
 					false);
@@ -789,6 +810,66 @@ public class MainActivity extends ActionBarActivity implements
         }
 
     }
+
+    public class GetAccountTask extends AsyncTask<String,String,Void> {
+        @Override
+        protected Void doInBackground(String... message) {
+            final SharedPreferences prefs = getSharedPreferences(
+                    MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            String regId = prefs.getString("REG_ID", "");
+            String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<QUERY gcm_regid=\"" + regId + "\">getAccount</QUERY>";
+            String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
+            //we create a TCPClient object and
+            TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                }
+            }, xml);
+            mTcpClient.run();
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            final SharedPreferences prefs = getSharedPreferences(
+                    MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+
+            XmlPullParserFactory factory;
+            try {
+                factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                XmlPullParser xpp = factory.newPullParser();
+                xpp.setInput(new StringReader(values[0]));
+                int eventType = xpp.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if(eventType == XmlPullParser.START_DOCUMENT) {
+                    } else if(eventType == XmlPullParser.START_TAG) {
+                        if (xpp.getName().equalsIgnoreCase("ACCOUNT")){
+                            editor.putString("ACCOUNT_BALANCE", xpp.getAttributeValue(null,"BALANCE").toString());
+                            editor.commit();
+                        }
+                    } else if(eventType == XmlPullParser.TEXT) {
+                    } else if(eventType == XmlPullParser.END_TAG) {
+                        if (xpp.getName().equalsIgnoreCase("ACCOUNT")){
+                        }
+                    }
+                    eventType = xpp.next();
+                }
+            } catch (XmlPullParserException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    };	// end GetAccountTask
 
     public String post_district_from_postcode(String dist, String post_code){
         String post_district = "";
