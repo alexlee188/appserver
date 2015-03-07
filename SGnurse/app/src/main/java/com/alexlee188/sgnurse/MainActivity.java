@@ -578,7 +578,7 @@ public class MainActivity extends ActionBarActivity implements
                 final SharedPreferences prefs =
                         getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
                                 Context.MODE_PRIVATE);
-                String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
+                String bal = prefs.getString("ACCOUNT_BALANCE", "$0.00");
                 balance.setText(bal);
 
                 Button button = (Button) rootView.findViewById(R.id.accountUpdate);
@@ -854,7 +854,7 @@ public class MainActivity extends ActionBarActivity implements
                     if(eventType == XmlPullParser.START_DOCUMENT) {
                     } else if(eventType == XmlPullParser.START_TAG) {
                         if (xpp.getName().equalsIgnoreCase("ACCOUNT")){
-                            editor.putString("ACCOUNT_BALANCE", xpp.getAttributeValue(null,"BALANCE").toString());
+                            editor.putString("ACCOUNT_BALANCE", "$" + xpp.getAttributeValue(null,"BALANCE").toString());
                             editor.commit();
                         }
                     } else if(eventType == XmlPullParser.TEXT) {
@@ -870,6 +870,10 @@ public class MainActivity extends ActionBarActivity implements
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+            }
+            if (!isPaused){ // Async task is still running when main activity may be paused
+                // calling the GUI methods will segfault
+                mSectionsPagerAdapter.notifyDataSetChanged();
             }
         }
     };	// end GetAccountTask
