@@ -411,7 +411,7 @@ public class MainActivity extends ActionBarActivity implements
                                                                             "This job may have already been assigned to another user. " +
                                                                             "Update your info in 'MY DETAILS' tab.  Also make sure you have " +
                                                                             "verified your qualifications and credentials.  Call SGnurse admin at" +
-                                                                            " 98368954.");
+                                                                            " 97851440.");
                                                                 } else if (xpp.getText().equalsIgnoreCase("success")) {
                                                                     adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
                                                                             "Make sure your info in 'MY DETAILS' is correct.");
