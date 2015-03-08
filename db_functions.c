@@ -77,7 +77,7 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
 	MYSQL_ROW row;
 
 	// first check that this gcm_user has a verified status
-	strcpy(buf, "select verified from gcm_users where gcm_regid = '");
+	strcpy(buf, "select verified, balance from gcm_users where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
 
@@ -93,14 +93,25 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
         }
   
     	row = mysql_fetch_row(result);
-	if (strncmp(row[0], "yes", 3) != 0){
+	float bal = atof(row[1]);
+	if ((strncmp(row[0], "yes", 3) != 0) || (bal < 2.0f)){
 	    mysql_free_result(result);
 	    finish_with_warning(con);
 	    return -1;
 	}
+
+
 	mysql_free_result(result);
 
 	// verified is "yes"
+
+	strcpy(buf, "update gcm_users set balance = balance - 2.00 where gcm_regid = '");
+	strcat(buf, gcm_regid);
+	strcat(buf, "';");
+	if (mysql_query(con, buf)) {    
+            finish_with_warning(con);
+	    return -1;
+	}
 
 	strcpy(buf, "update JOB set JOB_STATUS = 'requested', JOB_ASSIGNED_ID = (select id from gcm_users where gcm_regid = '");
 	strcat(buf, gcm_regid);
