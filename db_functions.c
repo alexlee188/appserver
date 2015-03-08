@@ -105,29 +105,29 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
 
 	// verified is "yes"
 
-	strcpy(buf, "update gcm_users set balance = balance - 2.00 where gcm_regid = '");
+	strcpy(buf, "start transaction;");
+	strcat(buf, "update gcm_users set balance = balance - 2.00 where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
-	if (mysql_query(con, buf)) {    
-            finish_with_warning(con);
-	    return -1;
-	}
-
-	strcpy(buf, "update JOB set JOB_STATUS = 'requested', JOB_ASSIGNED_ID = (select id from gcm_users where gcm_regid = '");
+	strcat(buf, "update JOB set JOB_STATUS = 'requested', JOB_ASSIGNED_ID = (select id from gcm_users where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "') where JOB_ID ='");
 	strcat(buf, job_id);
 	strcat(buf, "' and JOB_STATUS = 'open';");
+	strcat(buf, "commit;");
+
     	if (mysql_query(con, buf)) {      
     		finish_with_warning(con);
 		return -1;
     	}
 
+/*
         if (mysql_affected_rows(con) != 1) 
         {
             finish_with_warning(con);
 	    return -1;
         }
+*/
 	return 0;  // success
 }
 
