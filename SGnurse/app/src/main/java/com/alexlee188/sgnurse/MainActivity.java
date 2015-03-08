@@ -302,19 +302,144 @@ public class MainActivity extends ActionBarActivity implements
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
-
                         // ListView Clicked item index
-                        int itemPosition = position;
-
-                        // ListView Clicked item value
                         job itemValue = (job) listView.getItemAtPosition(position);
 
-                        // Show Alert
-                        Toast.makeText(getActivity().getBaseContext(),
-                                "LONG PRESS job to request assignment " +
-                                        itemValue.get_job_date_time() + " " +
-                                        itemValue.get_job_details(), Toast.LENGTH_LONG)
-                                .show();
+                        AlertDialog.Builder adb;
+                        AlertDialog ad;
+
+                        adb = new AlertDialog.Builder(getActivity());
+
+                        adb.setTitle("Request Job Assignment");
+                        final SharedPreferences prefs =
+                                getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                        Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("JOB_ID", itemValue.get_job_id() );
+                        editor.commit();
+                        float bal = Float.parseFloat(prefs.getString("ACCOUNT_BALANCE", "0.00"));
+                        if (bal < 2.0f) {
+                            adb.setMessage("Your Account Balance is less than $2.00.  " +
+                            "Please update your info in 'MY DETAILS' tab.  " +
+                            "Also make sure you have verified your qualifications and credentials " +
+                            "by calling SGnurse admin at 97851440.");
+                            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                        } else {
+                            adb.setMessage("Update your info in 'MY DETAILS' tab.  " +
+                             "Also make sure you have verified your qualifications and credentials " +
+                             "by calling SGnurse admin at 97851440.  " +
+                             "Do you wish to proceed with request to assign job: " +
+                             itemValue.get_job_date_time() + " " +
+                             itemValue.get_job_details() + " ?"
+                            );
+                            adb.setNegativeButton("CANCEL", new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            adb.setPositiveButton("PROCEED", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    AsyncTask <String, String, Void> AssignJobTask = new AsyncTask<String,String,Void>() {
+                                        private AlertDialog.Builder adb;
+                                        private AlertDialog ad;
+
+                                        @Override
+                                        protected void onPreExecute(){
+                                            super.onPreExecute();
+                                            adb = new AlertDialog.Builder(getActivity());
+                                            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                            adb.setTitle("Assign Job Request");
+                                        }
+
+                                        @Override
+                                        protected void onPostExecute(Void result){
+                                            super.onPostExecute(result);
+                                            ad = adb.create();
+                                            ad.show();
+                                        }
+
+                                        @Override
+                                        protected Void doInBackground(String... message) {
+                                            final SharedPreferences prefs =
+                                                    getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                                            Context.MODE_PRIVATE);
+                                            String regId = prefs.getString("REG_ID", "");
+                                            String job_id = prefs.getString("JOB_ID", "");
+                                            String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                                    "<ASSIGN gcm_regid=\"" + regId +
+                                                    "\" job_id=\"" + job_id + "\"></ASSIGN>";
+                                            String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
+                                            //we create a TCPClient object and
+                                            TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
+                                                @Override
+                                                //here the messageReceived method is implemented
+                                                public void messageReceived(String message) {
+                                                    //this method calls the onProgressUpdate
+                                                    publishProgress(message);
+                                                }
+                                            }, xml);
+                                            mTcpClient.run();
+                                            return null;
+                                        }
+
+                                        @Override
+                                        protected void onProgressUpdate(String... values) {
+                                            super.onProgressUpdate(values);
+                                            XmlPullParserFactory factory;
+                                            try {
+                                                factory = XmlPullParserFactory.newInstance();
+                                                factory.setNamespaceAware(true);
+                                                XmlPullParser xpp = factory.newPullParser();
+                                                xpp.setInput(new StringReader(values[0]));
+                                                int eventType = xpp.getEventType();
+                                                while (eventType != XmlPullParser.END_DOCUMENT) {
+                                                    if(eventType == XmlPullParser.START_DOCUMENT) {
+                                                    } else if(eventType == XmlPullParser.START_TAG) {
+                                                        if (xpp.getName().equalsIgnoreCase("ASSIGN")) {
+                                                            eventType = xpp.next();
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                if (xpp.getText().equalsIgnoreCase("fail")) {
+                                                                    adb.setMessage("FAIL - Request to assign job failed. " +
+                                                                            "This job may have already been assigned to another user. " +
+                                                                            "Update your info in 'MY DETAILS' tab.  Also make sure you have " +
+                                                                            "verified your qualifications and credentials.  Call SGnurse admin at" +
+                                                                            " 98368954.");
+                                                                } else if (xpp.getText().equalsIgnoreCase("success")) {
+                                                                    adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
+                                                                            "Make sure your info in 'MY DETAILS' is correct.");
+                                                                }
+                                                            }
+                                                        }
+                                                    } else if(eventType == XmlPullParser.END_TAG) {
+                                                        if (xpp.getName().equalsIgnoreCase("ASSIGN")){
+                                                        }
+                                                    }
+                                                    eventType = xpp.next();
+                                                }
+                                            } catch (XmlPullParserException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            } catch (IOException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    };	// end AssignJobTask
+                                    AssignJobTask.execute();
+                                    dialog.dismiss();
+                                }
+                            });
+                        }
+                        ad = adb.create();
+                        ad.show();
                     }
                 });
                 // ListView Item Long Click Listener
@@ -414,7 +539,7 @@ public class MainActivity extends ActionBarActivity implements
                                                         " 98368954.");
                                                     } else if (xpp.getText().equalsIgnoreCase("success")) {
                                                         adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
-                                                        "Make sure your info in MY DETAILS is correct.");
+                                                        "Make sure your info in 'MY DETAILS' is correct.");
                                                     }
                                                 }
                                             }
@@ -578,14 +703,14 @@ public class MainActivity extends ActionBarActivity implements
                 final SharedPreferences prefs =
                         getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
                                 Context.MODE_PRIVATE);
-                String bal = prefs.getString("ACCOUNT_BALANCE", "$0.00");
-                balance.setText(bal);
+                String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
+                balance.setText("$" + bal);
 
                 Button button = (Button) rootView.findViewById(R.id.accountUpdate);
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                             String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
-                            balance.setText(bal);
+                            balance.setText("$" + bal);
                     } // end onClick
                 });
                 return rootView;
@@ -705,7 +830,7 @@ public class MainActivity extends ActionBarActivity implements
                 mSectionsPagerAdapter.notifyDataSetChanged();
             }
         }
-	}	// end
+	}	// end GetJobTask
 
     public class GetAssignedJobsTask extends AsyncTask<String,String,Void> {
 
@@ -854,7 +979,7 @@ public class MainActivity extends ActionBarActivity implements
                     if(eventType == XmlPullParser.START_DOCUMENT) {
                     } else if(eventType == XmlPullParser.START_TAG) {
                         if (xpp.getName().equalsIgnoreCase("ACCOUNT")){
-                            editor.putString("ACCOUNT_BALANCE", "$" + xpp.getAttributeValue(null,"BALANCE").toString());
+                            editor.putString("ACCOUNT_BALANCE", xpp.getAttributeValue(null,"BALANCE").toString());
                             editor.commit();
                         }
                     } else if(eventType == XmlPullParser.TEXT) {
