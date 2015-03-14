@@ -473,13 +473,25 @@ public class MainActivity extends ActionBarActivity implements
 
                             adb.setTitle("Job Assignment Details");
 
-                            adb.setMessage("Customer Name: " + itemValue.getCustomer_name_1() +
-                            " Address: " + itemValue.getCustomer_addr_blk_no()  + ", " +
-                            itemValue.getCustomer_addr_street_1() + ", " +
-                            itemValue.getCustomer_addr_street_2() + ".  Phone: " +
-                            itemValue.getCustomer_phone() + " Mobile: " +
-                            itemValue.getCustomer_mobile() + " Job Details: " +
-                            itemValue.get_job_details());
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Customer Name: " + itemValue.getCustomer_name_1() + "/ " +
+                                    itemValue.getCustomer_name_2());
+                            sb.append("\n");
+                            sb.append("Address: ");
+                            sb.append(itemValue.getCustomer_addr_blk_no());
+                            sb.append(" ");
+                            sb.append(itemValue.getCustomer_addr_street_1());
+                            sb.append("\n        ");
+                            sb.append(itemValue.getCustomer_addr_street_2());
+                            sb.append("\nPhone: ");
+                            sb.append(itemValue.getCustomer_phone());
+                            sb.append("\nMobile: ");
+                            sb.append(itemValue.getCustomer_mobile());
+                            sb.append("\nJob Date/time: ");
+                            sb.append(itemValue.get_job_date_time());
+                            sb.append("\nJob Details: ");
+                            sb.append(itemValue.get_job_details());
+                            adb.setMessage(sb.toString());
                             adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -814,36 +826,46 @@ public class MainActivity extends ActionBarActivity implements
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_name_2= xpp.getText();
+                                if (customer_name_2.equalsIgnoreCase("NULL")) customer_name_2 = "";
                             }
                         }
                         else if (xpp.getName().equalsIgnoreCase("ADDR_BLK_NO")){
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_addr_blk_no= xpp.getText();
+                                if (customer_addr_blk_no.equalsIgnoreCase("NULL")) customer_addr_blk_no = "";
                             }
                         }
                         else if (xpp.getName().equalsIgnoreCase("ADDR_STREET_1")){
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_addr_street_1= xpp.getText();
+                                if (customer_addr_street_1.equalsIgnoreCase("NULL"))
+                                    customer_addr_street_1 = "";
                             }
                         }
                         else if (xpp.getName().equalsIgnoreCase("ADDR_STREET_2")){
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_addr_street_2= xpp.getText();
+                                if (customer_addr_street_2.equalsIgnoreCase("NULL"))
+                                    customer_addr_street_2 = "";
                             }
                         }
                         else if (xpp.getName().equalsIgnoreCase("PHONE")){
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_phone= xpp.getText();
+                                if (customer_phone.equalsIgnoreCase("NULL"))
+                                    customer_phone = "";
                             }
                         }
                         else if (xpp.getName().equalsIgnoreCase("MOBILE")){
                             eventType = xpp.next();
                             if(eventType == XmlPullParser.TEXT) {
                                 customer_mobile= xpp.getText();
+                                if (customer_mobile.equalsIgnoreCase("NULL"))
+                                    customer_mobile = "";
                             }
                         }
                     } else if(eventType == XmlPullParser.TEXT) {
