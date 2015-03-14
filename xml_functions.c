@@ -116,7 +116,7 @@ xmlBufferPtr GetJobs(char* gcm_regid)
 		}
     } else {	// only selecting jobs assigned to the user with the gcm_regid
     	char buf[4096];
-    	strcpy(buf, "select JOB_STATUS, JOB_ID, JOB.CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION from JOB join (CUSTOMER, gcm_users) on (JOB.CUSTOMER_ID = CUSTOMER.CUSTOMER_ID and JOB.JOB_ASSIGNED_ID = gcm_users.id) where gcm_regid = '");
+    	strcpy(buf, "select JOB_STATUS, JOB_ID, JOB.CUSTOMER_ID, ADDR_POSTCODE, JOB_DESC, JOB_NEED_1, JOB_NEED_2, JOB_NEED_3, JOB_START_TIME, JOB_DURATION, NAME_1, NAME_2, ADDR_BLK_NO, ADDR_STREET_1, ADDR_STREET_2, PHONE, MOBILE from JOB join (CUSTOMER, gcm_users) on (JOB.CUSTOMER_ID = CUSTOMER.CUSTOMER_ID and JOB.JOB_ASSIGNED_ID = gcm_users.id) where gcm_regid = '");
     	strcat(buf, gcm_regid);
    	strcat(buf, "' order by JOB_START_TIME, ADDR_POSTCODE;");
 	if (mysql_query(con, buf)) {      
@@ -134,7 +134,12 @@ xmlBufferPtr GetJobs(char* gcm_regid)
     }
 
     int num_fields = mysql_num_fields(result);
-    if (num_fields != 10){
+    if ((gcm_regid == NULL)  && (num_fields != 10)){
+	finish_with_warning(con);
+	return NULL;
+	}
+
+    if ((gcm_regid != NULL)  && (num_fields != 17)){
 	finish_with_warning(con);
 	return NULL;
 	}
@@ -244,6 +249,64 @@ xmlBufferPtr GetJobs(char* gcm_regid)
         return 0;
     }
 
+    // getting requested jobs for specific regid
+    if (gcm_regid != NULL){
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NAME_1",
+				         "%s", row[10]?row[10]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "NAME_2",
+				         "%s", row[11]?row[11]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_BLK_NO",
+				         "%s", row[12]?row[12]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_STREET_1",
+				         "%s", row[13]?row[13]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "ADDR_STREET_2",
+				         "%s", row[14]?row[14]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "PHONE",
+				         "%s", row[15]?row[15]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+
+	rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "MOBILE",
+				         "%s", row[16]?row[16]:"NULL");
+	if (rc < 0) {
+	printf
+	    ("GetJobs: Error at xmlTextWriterWriteFormatElement\n");
+	return 0;
+	}
+    }
     // end JOB
     rc = xmlTextWriterEndElement(writer);
 

@@ -584,14 +584,6 @@ public class MainActivity extends ActionBarActivity implements
                                 Context.MODE_PRIVATE);
                 String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
                 balance.setText("$" + bal);
-
-                Button button = (Button) rootView.findViewById(R.id.accountUpdate);
-                button.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                            String bal = prefs.getString("ACCOUNT_BALANCE", "0.00");
-                            balance.setText("$" + bal);
-                    } // end onClick
-                });
                 return rootView;
 			} else {
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
