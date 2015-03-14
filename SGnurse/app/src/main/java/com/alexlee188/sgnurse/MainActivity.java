@@ -464,15 +464,30 @@ public class MainActivity extends ActionBarActivity implements
                         public void onItemClick(AdapterView<?> parent, View view,
                                                 int position, long id) {
 
-                            // ListView Clicked item index
-                            int itemPosition     = position;
-                            // ListView Clicked item value
                             job itemValue = (job)listView.getItemAtPosition(position);
 
+                            AlertDialog.Builder adb;
+                            AlertDialog ad;
+
+                            adb = new AlertDialog.Builder(getActivity());
+
+                            adb.setTitle("Job Assignment Details");
+
+                            adb.setMessage("Customer Name: " + itemValue.getCustomer_name_1() +
+                            " Address: " + itemValue.getCustomer_addr_blk_no()  + ", " +
+                            itemValue.getCustomer_addr_street_1() + ", " +
+                            itemValue.getCustomer_addr_street_2() + ".  Phone: " +
+                            itemValue.getCustomer_phone() + " Mobile: " +
+                            itemValue.getCustomer_mobile() + " Job Details: " +
+                            itemValue.get_job_details());
+                            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
                             // Show Alert
-                            Toast.makeText(getActivity().getBaseContext(),
-                                    "Position :" + itemPosition + "  ListItem : " + itemValue.get_job_details(), Toast.LENGTH_LONG)
-                                    .show();
+                            ad = adb.create();
+                            ad.show();
 
                         }
 
@@ -732,6 +747,13 @@ public class MainActivity extends ActionBarActivity implements
             String job_id = "";
             String post_district = "";
             String job_date_time = "";
+            String customer_name_1 = "";
+            String customer_name_2 = "";
+            String customer_addr_blk_no = "";
+            String customer_addr_street_1 = "";
+            String customer_addr_street_2 = "";
+            String customer_phone = "";
+            String customer_mobile = "";
             try {
                 factory = XmlPullParserFactory.newInstance();
                 factory.setNamespaceAware(true);
@@ -782,13 +804,65 @@ public class MainActivity extends ActionBarActivity implements
                                 s.append(xpp.getText());
                             }
                         }
+                        else if (xpp.getName().equalsIgnoreCase("NAME_1")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_name_1= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("NAME_2")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_name_2= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("ADDR_BLK_NO")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_addr_blk_no= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("ADDR_STREET_1")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_addr_street_1= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("ADDR_STREET_2")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_addr_street_2= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("PHONE")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_phone= xpp.getText();
+                            }
+                        }
+                        else if (xpp.getName().equalsIgnoreCase("MOBILE")){
+                            eventType = xpp.next();
+                            if(eventType == XmlPullParser.TEXT) {
+                                customer_mobile= xpp.getText();
+                            }
+                        }
                     } else if(eventType == XmlPullParser.TEXT) {
                     } else if(eventType == XmlPullParser.END_TAG) {
                         if (xpp.getName().equalsIgnoreCase("JOB")){
-                            assigned_values.add(new job(job_id, job_date_time, post_district, s.toString()));
+                            assigned_values.add(new job(job_id, job_date_time, post_district, s.toString(),
+                                    customer_name_1, customer_name_2, customer_addr_blk_no,
+                                    customer_addr_street_1, customer_addr_street_2, customer_phone,
+                                    customer_mobile));
                             job_id = "";
                             job_date_time = "";
                             post_district = "";
+                            customer_name_1 = "";
+                            customer_name_2 = "";
+                            customer_addr_blk_no = "";
+                            customer_addr_street_1 = "";
+                            customer_addr_street_2 = "";
+                            customer_phone = "";
+                            customer_mobile = "";
                             s = new StringBuilder();
                         }
                     }
