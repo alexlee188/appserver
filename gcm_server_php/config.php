@@ -2,7 +2,7 @@
 /**
  * Database config variables
  */
-define("DB_HOST", "localhost");
+define("DB_HOST", "localhost:3307");
 define("DB_USER", "gcm_user");
 define("DB_PASSWORD", "gcm_user188");
 define("DB_DATABASE", "gcm");
