@@ -509,10 +509,12 @@ void readcb(struct bufferevent *bev, void *ctx){
 			sprintf(length, "%04d", (int)strlen(xml_insert_result_success)+3);
 			bufferevent_write(bev, length, 4);
 			bufferevent_write(bev, xml_insert_result_success, strlen(xml_insert_result_success)-1);
+			fprintf(stderr, "Insert/Update of gcm_regid, name, etc. successful\n");
 		} else {
 			sprintf(length, "%04d", (int)strlen(xml_insert_result_fail)+3);
 			bufferevent_write(bev, length, 4);
 			bufferevent_write(bev, xml_insert_result_fail, strlen(xml_insert_result_fail)-1);
+			fprintf(stderr, "Insert/Update of gcm_regid, name, etc. failed\n");
 		}
 		
 		if (name != NULL) free(name);
