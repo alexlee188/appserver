@@ -90,13 +90,12 @@
     </head>
     <body>
         <?php
-        include_once 'db_functions.php';
-        $db = new DB_Functions();
-        $users = $db->getAllUsers();
-        if ($users != false)
-            $no_of_users = mysql_num_rows($users);
-        else
-            $no_of_users = 0;
+        require_once 'config.php';
+        // connecting to mysql
+        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT);
+        $result = mysqli_query($conn, "select * FROM gcm_users");
+        $no_of_users = mysqli_num_rows($result);
+
         ?>
         <div class="container">
             <h1>No of Devices Registered: <?php echo $no_of_users; ?></h1>
@@ -106,7 +105,7 @@
                 if ($no_of_users > 0) {
                     ?>
                     <?php
-                    while ($row = mysql_fetch_array($users)) {
+                    while ($row = mysqli_fetch_assoc($result)) {
                         ?>
                         <li>
                             <form id="<?php echo $row["id"] ?>" name="" method="post" onsubmit="return sendPushNotification('<?php echo $row["id"] ?>')">

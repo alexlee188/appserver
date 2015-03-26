@@ -5,18 +5,15 @@
 <body>
  <?php
   if(isset($_POST['submit'])){
-	include_once 'config.php';
-	include_once 'db_functions.php';
-	$db = new DB_Functions();
-	$users = $db->getAllUsers();
-	if ($users != false)
-	    $no_of_users = mysql_num_rows($users);
-	else
-	    $no_of_users = 0;
+        require_once 'config.php';
+        // connecting to mysql
+        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT);
+        $result = mysqli_query($conn, "select * FROM gcm_users");
+        $no_of_users = mysqli_num_rows($result);
 
 	$registatoin_ids = array();
 
-   	while($row = mysql_fetch_array($users)){
+   	while($row = mysqli_fetch_assoc($result)){
     		array_push($registatoin_ids, $row['gcm_regid']);
   	 }
  
