@@ -63,10 +63,7 @@ static int port_ssl=BASE_PORT_SSL;
 // Client_list is the HEAD of a queue of connected clients
 TAILQ_HEAD(, _client_entry) Client_list;
 
-
 void* client_thread(void* arg);
-void client_set_samples(char *client_samples, float* samples,int size);
-
 
 void client_init(int channel) {
     int rc;
