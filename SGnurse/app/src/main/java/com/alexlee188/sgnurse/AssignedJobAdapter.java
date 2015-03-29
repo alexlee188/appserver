@@ -5,6 +5,7 @@ package com.alexlee188.sgnurse;
  */
 import java.util.ArrayList;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,10 @@ public class AssignedJobAdapter extends ArrayAdapter<job> {
         TextView job_detailView = (TextView) rowView.findViewById(R.id.job_details);
 
         job_heading.setText("JOB STATUS: ");
-        job_status.setText(JobsArrayList.get(position).get_job_status());
+        String status = JobsArrayList.get(position).get_job_status();
+        if (status.equalsIgnoreCase("requested")) job_status.setTextColor(Color.parseColor("#009900"));
+        else job_status.setTextColor(Color.parseColor("#000000"));
+        job_status.setText(status);
         job_date_timeView.setText(JobsArrayList.get(position).get_job_date_time());
         post_districtView.setText(JobsArrayList.get(position).get_post_district());
         job_detailView.setText(JobsArrayList.get(position).get_job_details());
