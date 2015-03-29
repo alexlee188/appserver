@@ -5,6 +5,7 @@ package com.alexlee188.sgnurse;
 
 public class job {
     private String job_id;
+    private String job_status;
     private String job_date_time;
     private String post_district;
     private String job_details;
@@ -25,12 +26,13 @@ public class job {
         this.job_details = job_details;
     }
 
-    public job(String job_id, String job_date_time, String post_district, String job_details,
+    public job(String job_id, String job_status, String job_date_time, String post_district, String job_details,
                String customer_name_1, String customer_name_2, String customer_addr_blk_no,
                String customer_addr_street_1, String customer_addr_street_2, String customer_phone,
                String customer_mobile){
         super();
         this.job_id = job_id;
+        this.job_status = job_status;
         this.job_date_time = job_date_time;
         this.post_district = post_district;
         this.job_details = job_details;
@@ -44,6 +46,7 @@ public class job {
     }
 
     public String get_job_id() { return job_id; }
+    public String get_job_status() { return job_status; }
     public String get_job_date_time(){
         return job_date_time;
     }

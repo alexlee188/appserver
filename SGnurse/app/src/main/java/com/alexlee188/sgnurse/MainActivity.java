@@ -453,7 +453,7 @@ public class MainActivity extends ActionBarActivity implements
                 // ArrayAdapter needs to be associated with the activity.
                 // If used in a fragment, the activity is not NULL only after the fragment is
                 // attached
-                JobAdapter adapter = new JobAdapter(getActivity().getBaseContext(), assigned_values);
+                AssignedJobAdapter adapter = new AssignedJobAdapter(getActivity().getBaseContext(), assigned_values);
                     // Assign adapter to ListView
                     listView.setAdapter(adapter);
 
@@ -757,6 +757,7 @@ public class MainActivity extends ActionBarActivity implements
             XmlPullParserFactory factory;
             StringBuilder s = null;
             String job_id = "";
+            String job_status = "";
             String post_district = "";
             String job_date_time = "";
             String customer_name_1 = "";
@@ -777,6 +778,7 @@ public class MainActivity extends ActionBarActivity implements
                     } else if(eventType == XmlPullParser.START_TAG) {
                         if (xpp.getName().equalsIgnoreCase("JOB")){
                             s = new StringBuilder();
+                            job_status = xpp.getAttributeValue("", "STATUS");
                         }
                         else if (xpp.getName().equalsIgnoreCase("JOB_ID")){
                             eventType = xpp.next();
@@ -871,11 +873,12 @@ public class MainActivity extends ActionBarActivity implements
                     } else if(eventType == XmlPullParser.TEXT) {
                     } else if(eventType == XmlPullParser.END_TAG) {
                         if (xpp.getName().equalsIgnoreCase("JOB")){
-                            assigned_values.add(new job(job_id, job_date_time, post_district, s.toString(),
+                            assigned_values.add(new job(job_id, job_status, job_date_time, post_district, s.toString(),
                                     customer_name_1, customer_name_2, customer_addr_blk_no,
                                     customer_addr_street_1, customer_addr_street_2, customer_phone,
                                     customer_mobile));
                             job_id = "";
+                            job_status = "";
                             job_date_time = "";
                             post_district = "";
                             customer_name_1 = "";

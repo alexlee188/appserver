@@ -11,14 +11,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class JobAdapter extends ArrayAdapter<job> {
+public class AssignedJobAdapter extends ArrayAdapter<job> {
 
     private final Context context;
     private final ArrayList<job> JobsArrayList;
 
-    public JobAdapter(Context context, ArrayList<job> itemsArrayList) {
+    public AssignedJobAdapter(Context context, ArrayList<job> itemsArrayList) {
 
-        super(context, R.layout.job_row, itemsArrayList);
+        super(context, R.layout.assigned_job_row, itemsArrayList);
 
         this.context = context;
         this.JobsArrayList = itemsArrayList;
@@ -32,12 +32,16 @@ public class JobAdapter extends ArrayAdapter<job> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // 2. Get rowView from inflater
-        View rowView = inflater.inflate(R.layout.job_row, parent, false);
+        View rowView = inflater.inflate(R.layout.assigned_job_row, parent, false);
 
+        TextView job_heading = (TextView) rowView.findViewById(R.id.job_heading);
+        TextView job_status = (TextView) rowView.findViewById(R.id.job_status);
         TextView job_date_timeView = (TextView) rowView.findViewById(R.id.job_date_time);
         TextView post_districtView = (TextView) rowView.findViewById(R.id.post_district);
         TextView job_detailView = (TextView) rowView.findViewById(R.id.job_details);
 
+        job_heading.setText("JOB STATUS: ");
+        job_status.setText(JobsArrayList.get(position).get_job_status());
         job_date_timeView.setText(JobsArrayList.get(position).get_job_date_time());
         post_districtView.setText(JobsArrayList.get(position).get_post_district());
         job_detailView.setText(JobsArrayList.get(position).get_job_details());
