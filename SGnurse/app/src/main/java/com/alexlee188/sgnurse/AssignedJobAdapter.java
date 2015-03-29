@@ -43,10 +43,8 @@ public class AssignedJobAdapter extends ArrayAdapter<job> {
 
         job_heading.setText("JOB STATUS: ");
         String status = JobsArrayList.get(position).get_job_status();
-
-        //if (status.equalsIgnoreCase("requested")) job_status.setTextColor(Color.parseColor("#009900"));
-        //else job_status.setTextColor(Color.parseColor("#000000"));
         job_status.setText(status);
+        //job_status.setTextColor(status.equalsIgnoreCase("requested") ? Color.parseColor("#009900") : Color.parseColor("#000000"));
         job_date_timeView.setText(JobsArrayList.get(position).get_job_date_time());
         post_districtView.setText(JobsArrayList.get(position).get_post_district());
         job_detailView.setText(JobsArrayList.get(position).get_job_details());
