@@ -17,8 +17,8 @@
         android:layout_toRightOf="@id/job_heading"
         android:textSize="15sp"
         android:paddingLeft="5dp"
-        android:textColor="#000000">
-    </TextView>
+        android:textColor="#000000"
+    />
     <TextView
         android:id="@+id/job_date_time"
         android:layout_width="wrap_content"
