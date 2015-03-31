@@ -505,7 +505,9 @@ void readcb(struct bufferevent *bev, void *ctx){
 		xmlChar * gender = xmlTextReaderGetAttribute(reader, BAD_CAST "gender");
 		xmlChar * nurse_type = xmlTextReaderGetAttribute(reader, BAD_CAST "nurse_type");
 		xmlChar * have_insurance = xmlTextReaderGetAttribute(reader, BAD_CAST "have_insurance");
-		if ((name != NULL) && (gcm_regid != NULL)){
+		if ((name != NULL) && (gcm_regid != NULL) && (email != NULL) &&
+			(phone != NULL) && (NRIC != NULL) && (date_of_birth != NULL) &&
+			(gender != NULL) && (nurse_type != NULL) && (have_insurance != NULL)){
 		if (insert_registration_to_db((char*) name, (char*) gcm_regid,
 			(char*) email, (char*) phone, (char*) NRIC, (char*) date_of_birth,
 			(char*) gender, (char*) nurse_type, (char*) have_insurance
