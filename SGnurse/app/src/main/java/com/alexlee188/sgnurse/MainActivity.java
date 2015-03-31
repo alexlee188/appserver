@@ -29,7 +29,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Context;
@@ -514,10 +517,25 @@ public class MainActivity extends ActionBarActivity implements
                 final TextView name = (TextView) rootView.findViewById(R.id.userName);
                 final TextView email = (TextView) rootView.findViewById(R.id.userEmail);
                 final TextView phone = (TextView) rootView.findViewById(R.id.userPhone);
+                final TextView NRIC = (TextView) rootView.findViewById(R.id.NRIC);
+                final TextView date_of_birth = (TextView) rootView.findViewById(R.id.date_of_birth);
+                final RadioGroup gender = (RadioGroup) rootView.findViewById(R.id.gender_group);
+                final RadioButton male = (RadioButton) rootView.findViewById(R.id.male_btn);
+                final RadioButton female = (RadioButton) rootView.findViewById(R.id.female_btn);
+                final RadioGroup nurse_type = (RadioGroup) rootView.findViewById(R.id.nurse_type_group);
+                final RadioButton RN = (RadioButton) rootView.findViewById(R.id.RN_btn);
+                final RadioButton EN = (RadioButton) rootView.findViewById(R.id.EN_btn);
+                final RadioButton NN = (RadioButton) rootView.findViewById(R.id.NN_btn);
+                final CheckBox have_insurance = (CheckBox) rootView.findViewById(R.id.insurance_checkBox);
 
                 name.setText(prefs.getString("USER_NAME", ""));
                 email.setText(prefs.getString("USER_EMAIL", ""));
                 phone.setText(prefs.getString("USER_PHONE", ""));
+                NRIC.setText(prefs.getString("USER_NRIC", ""));
+                date_of_birth.setText(prefs.getString("USER_BIRTH", ""));
+                gender.check(prefs.getInt("USER_GENDER", 1)); // default 1 = female
+                nurse_type.check(prefs.getInt("USER_TYPE", 2 )); // default 2 = NN
+                have_insurance.setChecked(prefs.getBoolean("USER_INSURANCE", false));
 
                 Button button = (Button) rootView.findViewById(R.id.userUpdate);
                 button.setOnClickListener(new View.OnClickListener() {
@@ -531,6 +549,13 @@ public class MainActivity extends ActionBarActivity implements
                         editor.putString("USER_NAME", name.getText().toString());
                         editor.putString("USER_EMAIL", email.getText().toString());
                         editor.putString("USER_PHONE", phone.getText().toString());
+                        editor.putString("USER_NRIC", NRIC.getText().toString());
+                        editor.putString("USER_BIRTH", date_of_birth.getText().toString());
+                        editor.putInt("USER_GENDER", male.isChecked() ? 0:1);
+                        if (NN.isChecked()) editor.putInt("USER_TYPE", 2);
+                        else if (EN.isChecked()) editor.putInt("USER_TYPE", 1);
+                        else editor.putInt("USER_TYPE", 0);
+                        editor.putBoolean("USER_INSURANCE", have_insurance.isChecked());
                         editor.commit();
 
                         AsyncTask <String, String, Void> InsertRegIdTask = new AsyncTask<String,String,Void>() {
@@ -543,10 +568,22 @@ public class MainActivity extends ActionBarActivity implements
                                 String user_name = prefs.getString("USER_NAME", "noname");
                                 String user_email = prefs.getString("USER_EMAIL", "who@somewhere.com");
                                 String user_phone = prefs.getString("USER_PHONE", "");
+                                String user_NRIC = prefs.getString("USER_NRIC", "");
+                                String user_birth = prefs.getString("USER_BIRTH", "");
+                                String user_gender = prefs.getInt("USER_GENDER", 1) == 1 ? "female": "male";
+                                String user_type = "NN";
+                                if ( prefs.getInt("USER_TYPE", 2)  == 0) user_type = "RN";
+                                else if (prefs.getInt("USER_TYPE", 2) == 1) user_type = "EN";
+                                String user_insurance = prefs.getBoolean("USER_INSURANCE", false)?
+                                        "1": "0";
+
                                 String xml_msg =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                         "<INSERT gcm_regid=\"" + regId + "\" name=\"" + user_name +
                                         "\" email=\"" + user_email + "\" phone=\"" +
-                                        user_phone + "\"></INSERT>";
+                                        user_phone + "\" NRIC=\"" + user_NRIC + "\" date_of_birth=\"" +
+                                        user_birth + "\" gender=\"" + user_gender + "\" nurse_type=\""  +
+                                        user_type + "\" have_insurance=\"" + user_insurance +
+                                        "\"></INSERT>";
                                 String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
                                 //we create a TCPClient object and
                                 TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
