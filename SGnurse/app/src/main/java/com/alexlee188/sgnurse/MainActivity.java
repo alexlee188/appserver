@@ -533,8 +533,17 @@ public class MainActivity extends ActionBarActivity implements
                 phone.setText(prefs.getString("USER_PHONE", ""));
                 NRIC.setText(prefs.getString("USER_NRIC", ""));
                 //date_of_birth.setText(prefs.getString("USER_BIRTH", ""));
-                gender.check(prefs.getInt("USER_GENDER", 1)); // default 1 = female
-                nurse_type.check(prefs.getInt("USER_TYPE", 2 )); // default 2 = NN
+                if (prefs.getInt("USER_GENDER", 1) == 1) gender.check(female.getId());
+                else gender.check(male.getId());
+                if (prefs.getInt("USER_TYPE", 2 ) == 2) {
+                    nurse_type.check(NN.getId());
+                }
+                else if (prefs.getInt("USER_TYPE", 2) == 1) {
+                    nurse_type.check(EN.getId());
+                }
+                else {
+                    nurse_type.check(RN.getId());
+                }
                 have_insurance.setChecked(prefs.getBoolean("USER_INSURANCE", false));
 
                 Button button = (Button) rootView.findViewById(R.id.userUpdate);
