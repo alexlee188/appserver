@@ -500,9 +500,16 @@ void readcb(struct bufferevent *bev, void *ctx){
 		xmlChar * gcm_regid = xmlTextReaderGetAttribute(reader, BAD_CAST "gcm_regid");
 		xmlChar * email = xmlTextReaderGetAttribute(reader, BAD_CAST "email");
 		xmlChar * phone = xmlTextReaderGetAttribute(reader, BAD_CAST "phone");
+		xmlChar * NRIC = xmlTextReaderGetAttribute(reader, BAD_CAST "NRIC");
+		xmlChar * date_of_birth = xmlTextReaderGetAttribute(reader, BAD_CAST "date_of_birth");
+		xmlChar * gender = xmlTextReaderGetAttribute(reader, BAD_CAST "gender");
+		xmlChar * nurse_type = xmlTextReaderGetAttribute(reader, BAD_CAST "nurse_type");
+		xmlChar * have_insurance = xmlTextReaderGetAttribute(reader, BAD_CAST "have_insurance");
 		if ((name != NULL) && (gcm_regid != NULL)){
 		if (insert_registration_to_db((char*) name, (char*) gcm_regid,
-			(char*) email, (char*) phone) == 0){
+			(char*) email, (char*) phone, (char*) NRIC, (char*) date_of_birth,
+			(char*) gender, (char*) nurse_type, (char*) have_insurance
+			) == 0){
 			sprintf(length, "%04d", (int)strlen(xml_insert_result_success)+3);
 			bufferevent_write(bev, length, 4);
 			bufferevent_write(bev, xml_insert_result_success, strlen(xml_insert_result_success)-1);
@@ -518,6 +525,11 @@ void readcb(struct bufferevent *bev, void *ctx){
 		if (gcm_regid != NULL) free(gcm_regid);
 		if (email != NULL) free(email);
 		if (phone != NULL) free(phone);
+		if (NRIC != NULL) free(NRIC);
+		if (date_of_birth != NULL) free(date_of_birth);
+		if (gender != NULL) free (gender);
+		if (nurse_type != NULL) free (nurse_type);
+		if (have_insurance != NULL) free (have_insurance);
 		}
 	    } // END INSERT
 	    else if ((type == 1) && (name != NULL) && (strncmp((char*)name, "ASSIGN", 6) == 0)){

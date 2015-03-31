@@ -159,7 +159,9 @@ int assign_job_to_user(char* job_id, char* gcm_regid){
 	return 0;  // success
 }
 
-int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* phone){
+int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* phone,
+		char* NRIC, char* date_of_birth, char* gender, char* nurse_type,
+		char* have_insurance){
     char buf[4096];
     MYSQL_RES *result;
 
@@ -185,6 +187,16 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
 	strcat(buf, email);
 	strcat(buf, "', phone='");
 	strcat(buf, phone);
+	strcat(buf, "', NRIC='");
+	strcat(buf, NRIC);
+	strcat(buf, "', date_of_birth='");
+	strcat(buf, date_of_birth);
+	strcat(buf, "', gender='");
+	strcat(buf, gender);
+	strcat(buf, "', nurse_type='");
+	strcat(buf, nurse_type);
+	strcat(buf, "', have_insurance='");
+	strcat(buf, have_insurance);
 	strcat(buf, "' where gcm_regid = '");
 	strcat(buf, gcm_regid);
 	strcat(buf, "';");
@@ -196,7 +208,8 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
 	return 0; // success
     } else {
 
-    	strcpy(buf, "insert into gcm_users(name, gcm_regid, email, phone) values ('");
+    	strcpy(buf, "insert into gcm_users(name, gcm_regid, email, phone, NRIC, ");
+	strcat(buf, "date_of_birth, gender, nurse_type, have_insurance) values ('");
    	 strcat(buf, name);
     	strcat(buf, "','");
     	strcat(buf, gcm_regid);
@@ -204,6 +217,16 @@ int insert_registration_to_db(char* name, char* gcm_regid, char* email, char* ph
 	strcat(buf, email);
 	strcat(buf, "','");
 	strcat(buf, phone);
+	strcat(buf, "','");
+	strcat(buf, NRIC);
+	strcat(buf, "','");
+	strcat(buf, date_of_birth);
+	strcat(buf, "','");
+	strcat(buf, gender);
+	strcat(buf, "','");
+	strcat(buf, nurse_type);
+	strcat(buf, "','");
+	strcat(buf, have_insurance);
     	strcat(buf, "');");
     	if (mysql_query(con, buf)) {      
     		finish_with_warning(con);
