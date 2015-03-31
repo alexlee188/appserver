@@ -65,20 +65,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="date of birth:"
-        android:id="@+id/textView5"
-        android:singleLine="true" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="date"
-        android:ems="10"
-        android:id="@+id/date_of_birth" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Gender:"
         android:id="@+id/textView6" />
 

@@ -518,7 +518,7 @@ public class MainActivity extends ActionBarActivity implements
                 final TextView email = (TextView) rootView.findViewById(R.id.userEmail);
                 final TextView phone = (TextView) rootView.findViewById(R.id.userPhone);
                 final TextView NRIC = (TextView) rootView.findViewById(R.id.NRIC);
-                final TextView date_of_birth = (TextView) rootView.findViewById(R.id.date_of_birth);
+                //final TextView date_of_birth = (TextView) rootView.findViewById(R.id.date_of_birth);
                 final RadioGroup gender = (RadioGroup) rootView.findViewById(R.id.gender_group);
                 final RadioButton male = (RadioButton) rootView.findViewById(R.id.male_btn);
                 final RadioButton female = (RadioButton) rootView.findViewById(R.id.female_btn);
@@ -532,7 +532,7 @@ public class MainActivity extends ActionBarActivity implements
                 email.setText(prefs.getString("USER_EMAIL", ""));
                 phone.setText(prefs.getString("USER_PHONE", ""));
                 NRIC.setText(prefs.getString("USER_NRIC", ""));
-                date_of_birth.setText(prefs.getString("USER_BIRTH", ""));
+                //date_of_birth.setText(prefs.getString("USER_BIRTH", ""));
                 gender.check(prefs.getInt("USER_GENDER", 1)); // default 1 = female
                 nurse_type.check(prefs.getInt("USER_TYPE", 2 )); // default 2 = NN
                 have_insurance.setChecked(prefs.getBoolean("USER_INSURANCE", false));
@@ -550,7 +550,7 @@ public class MainActivity extends ActionBarActivity implements
                         editor.putString("USER_EMAIL", email.getText().toString());
                         editor.putString("USER_PHONE", phone.getText().toString());
                         editor.putString("USER_NRIC", NRIC.getText().toString());
-                        editor.putString("USER_BIRTH", date_of_birth.getText().toString());
+                        editor.putString("USER_BIRTH", "2000-01-01");
                         editor.putInt("USER_GENDER", male.isChecked() ? 0:1);
                         if (NN.isChecked()) editor.putInt("USER_TYPE", 2);
                         else if (EN.isChecked()) editor.putInt("USER_TYPE", 1);
