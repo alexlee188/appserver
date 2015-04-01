@@ -25,7 +25,7 @@ public void onCreate(Bundle savedInstanceState) {
 	setContentView(R.layout.about);
 	TextView tv = (TextView)findViewById(R.id.info_text);
 	tv.setText(Html.fromHtml(readRawTextFile(R.raw.info)));
-	tv.setLinkTextColor(Color.GREEN);
+	tv.setLinkTextColor(Color.parseColor("#0099CC"));
 	Linkify.addLinks(tv, Linkify.ALL);
 }
 public static String readRawTextFile(int id) {
