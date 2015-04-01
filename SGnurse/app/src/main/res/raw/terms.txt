@@ -1,0 +1,4 @@
+<h3>SGnurse</h3>
+The terms of service for SGnurse users (nurses):
+<b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com/TermsOfService</b><br><br>
+

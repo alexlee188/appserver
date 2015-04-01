@@ -142,6 +142,12 @@ public class MainActivity extends ActionBarActivity implements
 		if (id == R.id.action_settings) {
 			return true;
 		}
+        else if (id == R.id.action_about){
+            AboutDialog aboutDialog = new AboutDialog(this);
+            aboutDialog.setTitle("About SGnurse");
+            aboutDialog.show();
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 

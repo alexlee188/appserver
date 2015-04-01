@@ -7,5 +7,6 @@
     <string name="title_section3">My Details</string>
     <string name="title_section4">My Accounts</string>
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
 
 </resources>

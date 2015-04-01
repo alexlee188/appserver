@@ -1,0 +1,7 @@
+<h3>SGnurse</h3>
+Copyright 2014-15 Alex Lee (alexlee188@gmail.com)<br>
+For details about Mobile Nursing that SGnurse is associated with, please see:
+<b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com</b><br><br>
+For SGnurse Terms of Service for nurses please see:
+<b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com/TermsOfService</b><br>
+
