@@ -328,19 +328,22 @@ public class MainActivity extends ActionBarActivity implements
                         editor.commit();
                         float bal = Float.parseFloat(prefs.getString("ACCOUNT_BALANCE", "0.00"));
                         if (bal < 2.0f) {
-                            adb.setMessage("Your Account Balance is less than $2.00.  " +
-                            "Please update your info in 'MY DETAILS' tab.  " +
-                            "Also make sure you have verified your qualifications and credentials " +
-                            "by calling SGnurse admin at 97851440.");
+                            adb.setMessage("Your Account Balance is less than $2.00.\n" +
+                                    "Read the Terms of Service by clicking About menu.  " +
+                                    "Update your info in 'MY DETAILS' tab.  " +
+                                    "Also make sure you have verified your qualifications and credentials. " +
+                                    "If you need help please call SGnurse admin at +6597851440.");
                             adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                 }
                             });
                         } else {
-                            adb.setMessage("Update your info in 'MY DETAILS' tab.  " +
-                             "Also make sure you have verified your qualifications and credentials " +
-                             "by calling SGnurse admin at 97851440.  " +
+                            adb.setMessage("Read the Terms of Service by clicking About menu.  " +
+                             "Update your info in 'MY DETAILS' tab.  " +
+                             "Also make sure you have verified your qualifications and credentials.  " +
+                             "If you need help please call SGnurse admin at +6597851440.\n\n" +
+                             "Proceed with request to assign job ONLY IF you agree with the Terms of Service.  " +
                              "Do you wish to proceed with request to assign job: " +
                              itemValue.get_job_date_time() + " " +
                              itemValue.get_job_details() + " ?"
@@ -420,7 +423,7 @@ public class MainActivity extends ActionBarActivity implements
                                                                             "This job may have already been assigned to another user. " +
                                                                             "Update your info in 'MY DETAILS' tab.  Also make sure you have " +
                                                                             "verified your qualifications and credentials.  Call SGnurse admin at" +
-                                                                            " 97851440.");
+                                                                            " +6597851440.");
                                                                 } else if (xpp.getText().equalsIgnoreCase("success")) {
                                                                     adb.setMessage("SUCCESS - SGnurse admin will call you to confirm. " +
                                                                             "Make sure your info in 'MY DETAILS' is correct.");
