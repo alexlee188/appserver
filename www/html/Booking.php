@@ -5,7 +5,7 @@
 <body>
 <h3>If you have already registered as an SGnurse customer, just call SGnurse admin at 97851440 for booking a home nurse visit.  If you are new, please register below.  After registration, SGnurse admin will call you to confirm.</h3>
 <?php
-	if(isset($_POST['submit'])){
+	if(isset($_POST['add'])){
 	require_once 'config.php';
 	$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT);
 	if (mysqli_connect_errno())
@@ -36,7 +36,7 @@ Street (line 2): <input type="text" name="ADDR_STREET_1" max_width="80" size="80
 Post Code: <input type="text" name="ADDR_POSTCODE" max_width="10" size="10" /><br><br>
 Phone No.: <input type="text" name="PHONE" max_width="16" size="16" /><br><br>
 Mobile No.: <input type="text" name="MOBILE" max_width="16" size="16" /><br><br>
-<input type="submit" />
+<input type="submit" name="add" id="add" />
 </form>
 <?php
 }
