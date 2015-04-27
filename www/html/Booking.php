@@ -34,9 +34,9 @@ minimum-scale=1">
 		{
 		die('Registration failed' . mysql_error());
 		}
-	if ($result->num_rows > 0){
+	if ($result->num_rows == 1){
 		$row = $result->fetch_assoc();
-		echo "Your Customer Reference Number is:" . $row["CUSTOMER_ID"] . "<br>";
+		echo "Your Customer Reference Number is:  " . $row["CUSTOMER_ID"] . "<br>";
 	}
 	mysqli_close($conn);
 	}
