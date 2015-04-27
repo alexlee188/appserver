@@ -18,6 +18,7 @@
 	  }
 	echo "1 record added";
 	mysql_close($conn);
+	}
 ?>
 
 <form action="Booking.php" method="post">
