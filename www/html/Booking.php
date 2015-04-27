@@ -1,8 +1,15 @@
 <html>
 <head>
-	<title>Insert New Customer></title>
+    <meta content="text/html; charset=windows-1252" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4,
+minimum-scale=1">
+    <link rel="stylesheet" href="Mobile.css" type="text/css" media="screen and (max-width: 1280px)">
+    <title>Insert New Customer></title>
 </head>
 <body>
+    <p><a href="index.html">HOME</a></p>
+    <p><br>
+    </p>
 <h3>If you have already registered as an SGnurse customer, just call SGnurse admin at 97851440 for booking a home nurse visit.  If you are new, please register below.  After registration, SGnurse admin will call you to confirm.</h3>
 <?php
 	if(isset($_POST['add'])){
@@ -32,7 +39,7 @@ Name of Patient: <input type="text" name="NAME_1" max_width="40" size="40" /><br
 Name of Carer: <input type="text" name="NAME_2" max_width="40" size="40" /><br><br>
 Block No./House No.: <input type="text" name="ADDR_BLK_NO" max_width="10" size="10" /><br><br>
 Street (line 1): <input type="text" name="ADDR_STREET_1" max_width="80" size="80" /><br><br>
-Street (line 2): <input type="text" name="ADDR_STREET_1" max_width="80" size="80" /><br><br>
+Street (line 2): <input type="text" name="ADDR_STREET_2" max_width="80" size="80" /><br><br>
 Post Code: <input type="text" name="ADDR_POSTCODE" max_width="10" size="10" /><br><br>
 Phone No.: <input type="text" name="PHONE" max_width="16" size="16" /><br><br>
 Mobile No.: <input type="text" name="MOBILE" max_width="16" size="16" /><br><br>
