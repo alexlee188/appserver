@@ -3,7 +3,7 @@
 	<title>Insert New Customer></title>
 </head>
 <body>
-<h1>If you have already registered as an SGnurse customer, just call SGnurse admin at 97851440 for booking a home nurse visit.  If you are new, please register below.  After registration, SGnurse admin will call you to confirm.</h1>
+<h3>If you have already registered as an SGnurse customer, just call SGnurse admin at 97851440 for booking a home nurse visit.  If you are new, please register below.  After registration, SGnurse admin will call you to confirm.</h3>
 <?php
 	if(isset($_POST['submit'])){
 	require_once 'config.php';
@@ -12,12 +12,8 @@
 		ADDR_STREET_1,ADDR_STREET_2,ADDR_POSTCODE,PHONE,MOBILE) VALUES (
 		'$_POST[NAME_1]','$_POST[NAME_2]','$_POST[ADDR_BLK_NO]','$_POST[ADDR_STREET_1]',
 		'$_POST[ADDR_STREET_2]','$_POST[ADDR_POSTCODE]','$_POST[PHONE]','$_POST[MOBILE]')");
-	if (!mysql_query($result,$conn))
-	  {
-	  die('Error: ' . mysql_error());
-	  }
 	echo "1 record added";
-	mysql_close($conn);
+	mysqli_close($conn);
 	}
 ?>
 
