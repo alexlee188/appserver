@@ -28,6 +28,16 @@ minimum-scale=1">
 		die('Registration failed' . mysql_error());
 		}
 	echo "Registration Successful\n";
+	$result = mysqli_query($conn, "select CUSTOMER_ID from CUSTOMER where NAME_1 = '$_POST[NAME_1]'
+		and PHONE = '$_POST[PHONE]' and MOBILE = '$_POST[MOBILE]'");
+	if (! $result)
+		{
+		die('Registration failed' . mysql_error());
+		}
+	if ($result->num_rows > 0){
+		$row = $result->fetch_assoc();
+		echo "Your Customer Reference Number is:" . $row["CUSTOMER_ID"] . "<br>";
+	}
 	mysqli_close($conn);
 	}
 else
