@@ -4,12 +4,12 @@
  */
 
 // To connect direct to RDB host
-// define("DB_HOST", "gcmdbinstance.cegfhjvyp8lf.ap-southeast-1.rds.amazonaws.com");
+define("DB_HOST", "gcmdbinstance.cegfhjvyp8lf.ap-southeast-1.rds.amazonaws.com");
 // To connect through ssh tunnel
-define("DB_HOST", "127.0.0.1");
+// define("DB_HOST", "127.0.0.1");
 // If not using ssh tunnel
-// define("DB_PORT", "3306");
-define("DB_PORT", "3307");
+define("DB_PORT", "3306");
+// define("DB_PORT", "3307");
 define("DB_USER", "gcm_user");
 define("DB_PASSWORD", "gcm_user188");
 define("DB_DATABASE", "gcm");

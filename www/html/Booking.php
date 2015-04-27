@@ -8,6 +8,10 @@
 	if(isset($_POST['submit'])){
 	require_once 'config.php';
 	$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT);
+	if (mysqli_connect_errno())
+	  {
+	  echo "Failed to connect to MySQL: " . mysqli_connect_error();
+	  }
  	$result = mysqli_query($conn, "insert into CUSTOMER (NAME_1,NAME_2,ADDR_BLK_NO,
 		ADDR_STREET_1,ADDR_STREET_2,ADDR_POSTCODE,PHONE,MOBILE) VALUES (
 		'$_POST[NAME_1]','$_POST[NAME_2]','$_POST[ADDR_BLK_NO]','$_POST[ADDR_STREET_1]',
