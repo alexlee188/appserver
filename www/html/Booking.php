@@ -45,14 +45,14 @@ else
 ?>
 
 <form action="<?php $_PHP_SELF ?>" method="post">
-Name of Patient: <input type="text" name="NAME_1" max_width="40" size="40" /><br><br>
+Name of Patient: <input type="text" name="NAME_1" max_width="40" size="40" required /><br><br>
 Name of Carer: <input type="text" name="NAME_2" max_width="40" size="40" /><br><br>
 Block Number/House Number: <input type="text" name="ADDR_BLK_NO" max_width="10" size="10" /><br><br>
 Street (line 1): <input type="text" name="ADDR_STREET_1" max_width="80" size="80" /><br><br>
 Street (line 2): <input type="text" name="ADDR_STREET_2" max_width="80" size="80" /><br><br>
-Post Code: <input type="text" name="ADDR_POSTCODE" max_width="10" size="10" /><br><br>
+Post Code: <input type="text" name="ADDR_POSTCODE" max_width="10" size="10" required /><br><br>
 Phone Number: <input type="text" name="PHONE" max_width="16" size="16" /><br><br>
-Mobile Number: <input type="text" name="MOBILE" max_width="16" size="16" /><br><br>
+Mobile Number: <input type="text" name="MOBILE" max_width="16" size="16" required /><br><br>
 <input type="submit" name="add" id="add" />
 </form>
 <?php
