@@ -16,12 +16,18 @@
 		ADDR_STREET_1,ADDR_STREET_2,ADDR_POSTCODE,PHONE,MOBILE) VALUES (
 		'$_POST[NAME_1]','$_POST[NAME_2]','$_POST[ADDR_BLK_NO]','$_POST[ADDR_STREET_1]',
 		'$_POST[ADDR_STREET_2]','$_POST[ADDR_POSTCODE]','$_POST[PHONE]','$_POST[MOBILE]')");
-	echo "1 record added";
+	if (! $result)
+		{
+		die('Registration failed' . mysql_error());
+		}
+	echo "Registration Successful\n";
 	mysqli_close($conn);
 	}
+else
+{
 ?>
 
-<form action="Booking.php" method="post">
+<form action="<?php $_PHP_SELF ?>" method="post">
 Name of Patient: <input type="text" name="NAME_1" max_width="40" size="40" /><br><br>
 Name of Carer: <input type="text" name="NAME_2" max_width="40" size="40" /><br><br>
 Block No./House No.: <input type="text" name="ADDR_BLK_NO" max_width="10" size="10" /><br><br>
@@ -32,5 +38,8 @@ Phone No.: <input type="text" name="PHONE" max_width="16" size="16" /><br><br>
 Mobile No.: <input type="text" name="MOBILE" max_width="16" size="16" /><br><br>
 <input type="submit" />
 </form>
+<?php
+}
+?>
 </body>
 </html>
