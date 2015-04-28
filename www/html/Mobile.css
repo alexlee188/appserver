@@ -11,11 +11,3 @@ max-width: 480px;
 max-height: 640px;
 }
 
-.required label {
-font-weight: bold;
-}
-.required label:after {
-color: #e32;
-content: ' *';
-display:inline;
-}
