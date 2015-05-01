@@ -38,8 +38,8 @@ class GCM {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
  
         // Disabling SSL Certificate support temporarly
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
- 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 2);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+ 	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 2);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
  
         // Execute post
