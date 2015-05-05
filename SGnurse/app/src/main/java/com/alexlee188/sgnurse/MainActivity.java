@@ -72,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements
 		setContentView(R.layout.activity_main);
 
         list_values.add(new job("","", "", "Waiting for server update..."));
-        assigned_values.add(new job("","", "", "Waiting for server update..."));
+        assigned_values.add(new job("", "", "", "Waiting for server update..."));
 
         regId = registerGCM();
 
@@ -110,7 +110,6 @@ public class MainActivity extends ActionBarActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-        new GetAccountTask().execute("");
 	}
 
     @Override
@@ -163,6 +162,11 @@ public class MainActivity extends ActionBarActivity implements
         } else if (tab.getPosition()== 1){
             new GetAssignedJobsTask().execute("");
         } else if (tab.getPosition()== 3) {
+            final SharedPreferences prefs =
+                    getSharedPreferences(MainActivity.class.getSimpleName(),
+                            Context.MODE_PRIVATE);
+            Boolean isUpdated = prefs.getBoolean("UPDATED", false);
+            if (!isUpdated) return;
             new GetAccountTask().execute("");
         }
 
@@ -562,8 +566,6 @@ public class MainActivity extends ActionBarActivity implements
                                 getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
                                         Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
-                        //editor.putString(REG_ID, regId);
-                        //editor.putInt(APP_VERSION, appVersion);
                         editor.putString("USER_NAME", name.getText().toString());
                         editor.putString("USER_EMAIL", email.getText().toString());
                         editor.putString("USER_PHONE", phone.getText().toString());
@@ -647,6 +649,12 @@ public class MainActivity extends ActionBarActivity implements
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
+                                final SharedPreferences prefs =
+                                        getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                                Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putBoolean("UPDATED", true);
+                                editor.commit();
                             }
                         };	// end InsertRegIdTask
 
@@ -1178,7 +1186,6 @@ public class MainActivity extends ActionBarActivity implements
         if (TextUtils.isEmpty(regId)) {
             registerInBackground();
         };
-
         return regId;
     }
 
