@@ -634,6 +634,47 @@ public class MainActivity extends ActionBarActivity implements
                                         if(eventType == XmlPullParser.START_DOCUMENT) {
                                         } else if(eventType == XmlPullParser.START_TAG) {
                                             if (xpp.getName().equalsIgnoreCase("INSERT")){
+                                                eventType=xpp.next();
+                                                if(eventType == XmlPullParser.TEXT){
+                                                    String result = xpp.getText();
+                                                    if (result.equalsIgnoreCase("success")){
+                                                        final SharedPreferences prefs =
+                                                                getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
+                                                                        Context.MODE_PRIVATE);
+                                                        SharedPreferences.Editor editor = prefs.edit();
+                                                        editor.putBoolean("UPDATED", true);
+                                                        editor.commit();
+
+                                                        AlertDialog.Builder adb;
+                                                        AlertDialog ad;
+                                                        adb = new AlertDialog.Builder(getActivity());
+                                                        adb.setTitle("Nurse Registration");
+                                                        adb.setMessage("Registration/Update SUCCESSFUL");
+                                                        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                dialog.dismiss();
+                                                            }
+                                                        });
+                                                        // Show Alert
+                                                        ad = adb.create();
+                                                        ad.show();
+                                                    } else
+                                                    {
+                                                        AlertDialog.Builder adb;
+                                                        AlertDialog ad;
+                                                        adb = new AlertDialog.Builder(getActivity());
+                                                        adb.setTitle("Nurse Registration");
+                                                        adb.setMessage("Registration/Update FAILED");
+                                                        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                dialog.dismiss();
+                                                            }
+                                                        });
+                                                        // Show Alert
+                                                        ad = adb.create();
+                                                        ad.show();
+                                                    }
+                                                }
                                             }
                                         } else if(eventType == XmlPullParser.TEXT) {
                                         } else if(eventType == XmlPullParser.END_TAG) {
@@ -649,12 +690,6 @@ public class MainActivity extends ActionBarActivity implements
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
-                                final SharedPreferences prefs =
-                                        getActivity().getSharedPreferences(MainActivity.class.getSimpleName(),
-                                                Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = prefs.edit();
-                                editor.putBoolean("UPDATED", true);
-                                editor.commit();
                             }
                         };	// end InsertRegIdTask
 

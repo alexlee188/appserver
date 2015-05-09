@@ -90,7 +90,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nurse type:"
+        android:text="@string/nurse_type"
         android:id="@+id/textView7" />
 
     <RadioGroup
@@ -113,7 +113,7 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="None of above"
+            android:text="@string/none"
             android:id="@+id/NN_btn" />
 
     </RadioGroup>
@@ -121,13 +121,13 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Have Indemnity Insurance"
+        android:text="@string/have_insurance"
         android:id="@+id/insurance_checkBox" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Update"
+        android:text="@string/update"
         android:id="@+id/userUpdate" />
 
 </LinearLayout>
