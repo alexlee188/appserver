@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <TextView
+        android:id="@+id/job_date_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:paddingLeft="5dp"
+        android:textColor="#731d1d">
+    </TextView>
+    <TextView
+        android:id="@+id/post_district"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/job_date_time"
+        android:textSize="15sp"
+        android:paddingLeft="5dp"
+        android:textColor="#576c93">
+    </TextView>
+
+    <TextView
+        android:id="@+id/job_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/post_district"
+        android:textSize="14sp"
+        android:paddingLeft="5dp"
+        android:textColor="#000000"
+        >
+    </TextView>
+
+</RelativeLayout>
