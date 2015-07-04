@@ -64,7 +64,6 @@ public class MainActivity extends ActionBarActivity implements
 
     Boolean isPaused;
     GoogleCloudMessaging gcm;
-    String regId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +73,7 @@ public class MainActivity extends ActionBarActivity implements
         list_values.add(new job("","", "", "Waiting for server update..."));
         assigned_values.add(new job("", "", "", "Waiting for server update..."));
 
-        regId = registerGCM();
+        registerGCM();
 
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
@@ -832,6 +831,13 @@ public class MainActivity extends ActionBarActivity implements
 
         @Override
         protected Void doInBackground(String... message) {
+            final SharedPreferences prefs =
+                    getSharedPreferences(MainActivity.class.getSimpleName(),
+                            Context.MODE_PRIVATE);
+            String regId = prefs.getString("REG_ID", "");
+            String xml_msg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
+                    + "<QUERY gcm_regid=\"" + regId + "\">GetJobs</QUERY>";
+            String xml = String.format("%04d",xml_msg.length()+4) + xml_msg;
             //we create a TCPClient object and
             TCPClient mTcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
                 @Override
@@ -840,8 +846,7 @@ public class MainActivity extends ActionBarActivity implements
                     //this method calls the onProgressUpdate
                     publishProgress(message);
                 }
-            }, "0240<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
-                    + "<QUERY gcm_regid=\"" + regId + "\">GetJobs</QUERY>");
+            }, xml);
             mTcpClient.run();
             return null;
         }
@@ -1214,14 +1219,13 @@ public class MainActivity extends ActionBarActivity implements
         return post_district;
     }
 
-    public String registerGCM() {
+    public void registerGCM() {
         gcm = GoogleCloudMessaging.getInstance(this);
-        regId = getRegistrationId(getApplicationContext());
+        String regId = getRegistrationId(getApplicationContext());
 
         if (TextUtils.isEmpty(regId)) {
             registerInBackground();
         };
-        return regId;
     }
 
     private String getRegistrationId(Context context) {
@@ -1256,6 +1260,7 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
+                String regId = "";
                 try {
                     if (gcm == null) {
                         gcm = GoogleCloudMessaging.getInstance(getApplicationContext());

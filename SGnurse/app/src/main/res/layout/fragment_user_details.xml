@@ -11,6 +11,7 @@
         android:layout_alignParentLeft="true"
         android:text="Name:"
         android:id="@+id/textView"
+        android:gravity = "center_vertical"
         android:layout_gravity="left|center_horizontal" />
 
     <EditText
@@ -26,6 +27,7 @@
         android:layout_width="60dp"
         android:layout_height="30dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:gravity = "center_vertical"
         android:text="Email:"
         android:layout_below="@id/textView"
         android:layout_alignParentLeft="true"
@@ -49,6 +51,7 @@
         android:text="Phone:"
         android:layout_below="@id/textView2"
         android:layout_alignParentLeft="true"
+        android:gravity = "center_vertical"
         android:id="@+id/textView3"
         android:layout_gravity="left|center_horizontal" />
 
@@ -68,6 +71,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_below="@id/textView3"
         android:layout_alignParentLeft="true"
+        android:gravity = "center_vertical"
         android:text="NRIC:"
         android:id="@+id/textView4" />
 
@@ -159,6 +163,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_below="@+id/textView7"
         android:layout_alignParentLeft="true"
+        android:gravity = "center_vertical"
         android:text="@string/have_insurance"
         android:id="@+id/insurance_checkBox" />
 

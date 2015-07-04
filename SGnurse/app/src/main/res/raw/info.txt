@@ -1,4 +1,4 @@
-<h3>SGnurse</h3>
+<h3>SGnurse v0.90</h3>
 Copyright 2014-15 Alex Lee (alexlee188@gmail.com)<br><br>
 For details about SGnurse and about customer booking, please see:
 <h3><b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com</b></h3><br>
