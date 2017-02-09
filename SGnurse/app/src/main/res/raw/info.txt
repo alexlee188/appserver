@@ -1,5 +1,7 @@
-<h3>SGnurse v0.91</h3>
-Copyright 2014-15 Alex Lee (alexlee188@gmail.com)<br><br>
+<h3>SGnurse v0.92</h3>
+Copyright 2014-15=7 Alex Lee (alexlee188@gmail.com)<br><br>
+For privacy policy of SGnurse, please see:
+<h3><b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com/SGprivacypolicy.html</b></h3><br>
 For details about SGnurse and about customer booking, please see:
 <h3><b>http://ec2-54-179-162-196.ap-southeast-1.compute.amazonaws.com</b></h3><br>
 For SGnurse Terms of Service for nurses please see:
